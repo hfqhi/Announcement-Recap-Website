@@ -22,7 +22,7 @@ $actionColors = [
 
 include __DIR__ . '/../includes/header.php';
 ?>
-<h2 class="mb-4">System Audit Log</h2>
+<h2 class="mb-4">Admin Audit Log</h2>
 <div class="card shadow-sm">
     <div class="card-body p-0 table-responsive">
         <table class="table table-striped table-sm mb-0">
