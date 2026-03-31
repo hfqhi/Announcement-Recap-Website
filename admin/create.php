@@ -5,23 +5,26 @@ require_once __DIR__ . '/../includes/auth_guard.php';
 require_once __DIR__ . '/../includes/helpers.php';
 $pageTitle = "Create Announcement";
 
+// ONLY fetch active subjects
+$subjects = $pdo->query("SELECT id, code, name FROM tbl_subjects WHERE status = 'active' ORDER BY code ASC")->fetchAll();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $subject = sanitize($_POST['subject']);
+    $subject_id = (int)$_POST['subject_id'];
     $title = sanitize($_POST['title']);
     $content = sanitize($_POST['content']);
     $due_date = !empty($_POST['due_date']) ? $_POST['due_date'] : null;
+    $end_date = !empty($_POST['end_date']) ? $_POST['end_date'] : null;
 
-    $stmt = $pdo->prepare("INSERT INTO tbl_announcements (admin_id, subject, title, content, due_date) VALUES (?, ?, ?, ?, ?)");
-    $stmt->execute([$_SESSION['admin_id'], $subject, $title, $content, $due_date]);
+    $stmt = $pdo->prepare("INSERT INTO tbl_announcements (admin_id, subject_id, title, content, due_date, end_date) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$_SESSION['admin_id'], $subject_id, $title, $content, $due_date, $end_date]);
 
-    $newId = $pdo->lastInsertId();
-    logAction($pdo, $_SESSION['admin_id'], $newId, 'created', null, $_POST);
-
+    logAction($pdo, $_SESSION['admin_id'], $pdo->lastInsertId(), 'created', null, $_POST);
     header("Location: index.php");
     exit();
 }
 include __DIR__ . '/../includes/header.php';
 ?>
+<!-- The HTML form remains exactly the same as V3, just copy the HTML portion from V3 admin/create.php here -->
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="card shadow-sm">
@@ -30,23 +33,17 @@ include __DIR__ . '/../includes/header.php';
                 <form method="POST">
                     <div class="mb-3">
                         <label>Subject</label>
-                        <select name="subject" class="form-select" required>
-                            <?php foreach(getSubjectOptions() as $opt): ?>
-                                <option value="<?= $opt ?>"><?= $opt ?></option>
+                        <select name="subject_id" class="form-select" required>
+                            <?php foreach($subjects as $sub): ?>
+                                <option value="<?= $sub['id'] ?>"><?= $sub['code'] ?> - <?= htmlspecialchars($sub['name']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label>Title</label>
-                        <input type="text" name="title" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Content (Supports basic HTML/Markdown via textarea)</label>
-                        <textarea name="content" class="form-control" rows="5" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label>Due Date (Optional)</label>
-                        <input type="date" name="due_date" class="form-control">
+                    <div class="mb-3"><label>Title</label><input type="text" name="title" class="form-control" required></div>
+                    <div class="mb-3"><label>Content</label><textarea name="content" class="form-control" rows="5" required></textarea></div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3"><label>Start / Due Date</label><input type="date" name="due_date" class="form-control"></div>
+                        <div class="col-md-6 mb-3"><label>End Date (Optional Period)</label><input type="date" name="end_date" class="form-control"></div>
                     </div>
                     <button type="submit" class="btn btn-primary">Publish</button>
                     <a href="index.php" class="btn btn-secondary">Cancel</a>

@@ -10,8 +10,11 @@ body {
 .announcement-card:hover {
   transform: translateY(-5px);
 }
+.opacity-75:hover {
+  opacity: 1 !important;
+}
 
-/* Subject Colors Exact Match to Canva Reference */
+/* Subject Themes (Text forced white or black for readability) */
 .bg-sciets {
   background-color: #f48fb1 !important;
   color: #fff !important;
@@ -49,10 +52,35 @@ body {
   color: #fff !important;
 }
 
-/* Thicker badges for cards */
-.announcement-card .badge {
-  border-radius: 6px 6px 0 0;
-  font-size: 1.5rem !important;
-  letter-spacing: 3px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+/* Strict CSS Grid Calendar (Fixes Alignment completely) */
+.cal-strict-grid {
+  display: grid;
+  /* 1st col is Week number (50px), the rest are 7 equal fractions */
+  grid-template-columns: 50px repeat(7, 1fr);
+}
+.cal-strict-grid.row-group {
+  min-height: 120px;
+}
+.cal-cell {
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+.cal-cell.empty {
+  background-color: #fcfcfc;
+}
+
+/* Clean Event Bars (Google Calendar Style) */
+.event-bars-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.event-bar {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 4px;
+  border-radius: 4px;
+  width: 100%;
+  cursor: default;
 }
