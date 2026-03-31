@@ -2,21 +2,29 @@
 // admin/subjects.php
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth_guard.php';
+require_once __DIR__ . '/../includes/helpers.php';
 $pageTitle = "Manage Subjects";
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['csrf_token'])) {
+    verifyCsrf($_POST['csrf_token']); // Security Check
+
     if ($_POST['action'] === 'add') {
         $stmt = $pdo->prepare("INSERT INTO tbl_subjects (code, name, professor, schedule, color_theme) VALUES (?, ?, ?, ?, ?)");
         $stmt->execute([$_POST['code'], $_POST['name'], $_POST['professor'], $_POST['schedule'], $_POST['color_theme']]);
+        setFlash('success', 'Subject added successfully!');
     } elseif ($_POST['action'] === 'edit') {
         $stmt = $pdo->prepare("UPDATE tbl_subjects SET code=?, name=?, professor=?, schedule=?, color_theme=? WHERE id=?");
         $stmt->execute([$_POST['code'], $_POST['name'], $_POST['professor'], $_POST['schedule'], $_POST['color_theme'], $_POST['id']]);
+        setFlash('success', 'Subject updated successfully!');
     } elseif ($_POST['action'] === 'archive') {
         $pdo->prepare("UPDATE tbl_subjects SET status = 'archived' WHERE id = ?")->execute([$_POST['id']]);
+        setFlash('warning', 'Subject archived.');
     } elseif ($_POST['action'] === 'restore') {
         $pdo->prepare("UPDATE tbl_subjects SET status = 'active' WHERE id = ?")->execute([$_POST['id']]);
+        setFlash('success', 'Subject restored.');
     } elseif ($_POST['action'] === 'hard_delete') {
         $pdo->prepare("DELETE FROM tbl_subjects WHERE id = ?")->execute([$_POST['id']]);
+        setFlash('danger', 'Subject permanently deleted.');
     }
     header("Location: subjects.php");
     exit();
@@ -41,20 +49,21 @@ include __DIR__ . '/../includes/header.php';
 <div class="tab-content">
     <div class="tab-pane fade show active" id="active-tab">
         <div class="card shadow-sm"><div class="card-body p-0 table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-light"><tr><th>Code</th><th>Name</th><th>Professor</th><th>Actions</th></tr></thead>
                 <tbody>
                     <?php foreach($active as $sub): ?>
                     <tr>
-                        <td><span class="badge <?= $sub['color_theme'] ?>"><?= htmlspecialchars($sub['code']) ?></span></td>
-                        <td><?= htmlspecialchars($sub['name']) ?></td>
-                        <td><?= htmlspecialchars($sub['professor']) ?></td>
+                        <td><span class="badge <?= e($sub['color_theme']) ?>"><?= e($sub['code']) ?></span></td>
+                        <td><?= e($sub['name']) ?></td>
+                        <td><?= e($sub['professor']) ?></td>
                         <td>
-                            <button class="btn btn-sm btn-outline-primary" onclick='openSubjectModal("edit", <?= json_encode($sub) ?>)'><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-primary" onclick='openSubjectModal("edit", <?= json_encode($sub) ?>)' title="Edit"><i class="bi bi-pencil-square"></i></button>
                             <form method="POST" class="d-inline delete-form">
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                 <input type="hidden" name="action" value="archive">
                                 <input type="hidden" name="id" value="<?= $sub['id'] ?>">
-                                <button type="submit" class="btn btn-sm btn-outline-warning" title="Archive"><i class="bi bi-archive"></i></button>
+                                <button type="submit" class="btn btn-sm btn-outline-warning" title="Archive"><i class="bi bi-archive-fill"></i></button>
                             </form>
                         </td>
                     </tr>
@@ -66,21 +75,23 @@ include __DIR__ . '/../includes/header.php';
 
     <div class="tab-pane fade" id="archived-tab">
         <div class="card shadow-sm"><div class="card-body p-0 table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-light"><tr><th>Code</th><th>Name</th><th>Actions</th></tr></thead>
                 <tbody>
                     <?php foreach($archived as $sub): ?>
                     <tr class="table-secondary">
-                        <td><span class="badge <?= $sub['color_theme'] ?>"><?= htmlspecialchars($sub['code']) ?></span></td>
-                        <td><del><?= htmlspecialchars($sub['name']) ?></del></td>
+                        <td><span class="badge <?= e($sub['color_theme']) ?>"><?= e($sub['code']) ?></span></td>
+                        <td><del><?= e($sub['name']) ?></del></td>
                         <td>
                             <form method="POST" class="d-inline">
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                 <input type="hidden" name="action" value="restore"><input type="hidden" name="id" value="<?= $sub['id'] ?>">
-                                <button type="submit" class="btn btn-sm btn-success">Restore</button>
+                                <button type="submit" class="btn btn-sm btn-success" title="Restore"><i class="bi bi-arrow-counterclockwise"></i></button>
                             </form>
                             <form method="POST" class="d-inline delete-form">
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                 <input type="hidden" name="action" value="hard_delete"><input type="hidden" name="id" value="<?= $sub['id'] ?>">
-                                <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i> Delete</button>
+                                <button type="submit" class="btn btn-sm btn-danger" title="Permanently Delete"><i class="bi bi-trash3-fill"></i></button>
                             </form>
                         </td>
                     </tr>
@@ -97,6 +108,7 @@ include __DIR__ . '/../includes/header.php';
         <form method="POST" class="modal-content">
             <div class="modal-header"><h5 class="modal-title" id="modalTitle">Subject</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <input type="hidden" name="action" id="modalAction" value="add">
                 <input type="hidden" name="id" id="modalId">
                 <input type="text" name="code" id="modalCode" class="form-control mb-2" placeholder="Code (e.g. SCIETS)" required>
@@ -104,15 +116,9 @@ include __DIR__ . '/../includes/header.php';
                 <input type="text" name="professor" id="modalProf" class="form-control mb-2" placeholder="Professor Name">
                 <input type="text" name="schedule" id="modalSched" class="form-control mb-2" placeholder="Schedule (e.g. M 10am-1pm)">
                 <select name="color_theme" id="modalTheme" class="form-select mb-2">
-                    <option value="bg-sciets">Pink (SCIETS)</option>
-                    <option value="bg-contwo">Teal (CONTWO)</option>
-                    <option value="bg-eneco">Indigo (ENECO)</option>
-                    <option value="bg-eceng">Yellow (ECENG)</option>
-                    <option value="bg-softdes">Green (SOFTDES)</option>
-                    <option value="bg-numerical">Purple (NUMERICAL)</option>
-                    <option value="bg-rizal">Orange (RIZAL)</option>
-                    <option value="bg-pehef2">Light Blue (PEHEF2)</option>
-                    <option value="bg-other">Gray (Other)</option>
+                    <?php foreach(COLOR_THEMES as $class => $data): ?>
+                        <option value="<?= $class ?>"><?= $data['name'] ?></option>
+                    <?php endforeach; ?>
                 </select>
             </div>
             <div class="modal-footer"><button type="submit" class="btn btn-primary">Save</button></div>
