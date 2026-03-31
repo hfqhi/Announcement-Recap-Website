@@ -1,7 +1,8 @@
 <?php
+// public/index.php
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/helpers.php';
-$pageTitle = "Announcement Recap";
+$pageTitle = "Announcement Tracker";
 
 $announcements = getActiveAnnouncements($pdo);
 $upcomingDeadlines = array_filter($announcements, fn($a) => !empty($a['due_date']));
@@ -11,7 +12,12 @@ $generalInfo = array_filter($announcements, fn($a) => empty($a['due_date']));
 $month = date('m'); $year = date('Y');
 $daysInMonth = date('t', mktime(0, 0, 0, $month, 1, $year));
 $firstDayOfWeek = date('w', mktime(0, 0, 0, $month, 1, $year));
-$semesterStart = new DateTime(SEMESTER_START);
+
+// Calculate the exact Sunday of the week the semester started
+$semStart = new DateTime(SEMESTER_START);
+$semDayOfWeek = (int)$semStart->format('w');
+$semStartSunday = clone $semStart;
+$semStartSunday->modify("-$semDayOfWeek days");
 
 $calendarEvents = [];
 foreach($announcements as $a) {
@@ -26,6 +32,7 @@ foreach($announcements as $a) {
     }
 }
 
+// Build Calendar Grid Array
 $weeks = []; $currentWeek = [];
 for($i = 0; $i < $firstDayOfWeek; $i++) { $currentWeek[] = null; }
 for($day = 1; $day <= $daysInMonth; $day++) {
@@ -41,7 +48,7 @@ include __DIR__ . '/../includes/header.php';
 ?>
 <div class="d-flex justify-content-between align-items-end mb-4 mt-3 border-bottom pb-3">
     <div>
-        <h1 class="display-6 fw-bold text-uppercase mb-0" style="letter-spacing: 2px;">Announcement Recap</h1>
+        <h1 class="display-6 fw-bold text-uppercase mb-0" style="letter-spacing: 2px;">CPE2B Portal</h1>
         <h5 class="text-danger font-monospace mt-1">
             <?= date('M d, Y (l)') ?> | <span id="liveClock"><?= date('h:i:s A') ?></span>
         </h5>
@@ -115,12 +122,22 @@ include __DIR__ . '/../includes/header.php';
                 </div>
 
                 <?php foreach($weeks as $weekDays):
+                    // Pinpoint the exact Sunday of this specific calendar row
                     $firstValidDay = array_values(array_filter($weekDays))[0];
-                    $calDate = new DateTime("$year-$month-$firstValidDay");
-                    $weekNum = $calDate < $semesterStart ? 0 : floor($semesterStart->diff($calDate)->days / 7) + 1;
+                    $firstValidDayIndex = array_search($firstValidDay, $weekDays);
+
+                    $sundayOfRow = new DateTime("$year-$month-$firstValidDay");
+                    $sundayOfRow->modify("-$firstValidDayIndex days");
+
+                    // Calculate exact week difference between the two Sundays
+                    $diff = $semStartSunday->diff($sundayOfRow);
+                    $daysDiff = $diff->invert ? -$diff->days : $diff->days;
+                    $weekNum = floor($daysDiff / 7) + 1;
                 ?>
                 <div class="cal-strict-grid row-group border-bottom">
-                    <div class="d-flex align-items-center justify-content-center text-danger fw-bold border-end bg-light">W<?= $weekNum ?></div>
+                    <div class="d-flex align-items-center justify-content-center text-danger fw-bold border-end bg-light">
+                        <?= $weekNum > 0 ? "W{$weekNum}" : "-" ?>
+                    </div>
                     <?php foreach($weekDays as $day):
                         if($day === null): echo "<div class='cal-cell empty border-end'></div>"; continue; endif;
                         $isToday = ($day == date('d') && $month == date('m') && $year == date('Y'));
