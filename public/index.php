@@ -2,7 +2,7 @@
 // public/index.php
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/helpers.php';
-$pageTitle = "Announcement Tracker";
+$pageTitle = "Announcement Recap";
 
 $announcements = getActiveAnnouncements($pdo);
 $upcomingDeadlines = array_filter($announcements, fn($a) => !empty($a['due_date']));
@@ -48,7 +48,7 @@ include __DIR__ . '/../includes/header.php';
 ?>
 <div class="d-flex justify-content-between align-items-end mb-4 mt-3 border-bottom pb-3">
     <div>
-        <h1 class="display-6 fw-bold text-uppercase mb-0" style="letter-spacing: 2px;">CPE2B Portal</h1>
+        <h1 class="display-6 fw-bold text-uppercase mb-0" style="letter-spacing: 2px;">Announcements Recap</h1>
         <h5 class="text-danger font-monospace mt-1">
             <?= date('M d, Y (l)') ?> | <span id="liveClock"><?= date('h:i:s A') ?></span>
         </h5>
