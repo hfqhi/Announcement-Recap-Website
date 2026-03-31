@@ -16,7 +16,7 @@ if (empty($_SESSION['csrf_token'])) {
 define('IS_PRODUCTION', true); // Set to TRUE when hosting online to hide SQL errors
 define('DB_HOST', 'localhost');
 define('DB_USER', 'cpe_user');
-define('DB_PASS', 'PortalPass123');
+define('DB_PASS', 'PortalPass123!');
 define('DB_NAME', 'db_announcement_system');
 
 // 4. App Settings & Centralized Data
