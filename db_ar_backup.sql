@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `tbl_admins` (
   UNIQUE KEY `username` (`username`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table db_announcement_system.tbl_admins: ~0 rows (approximately)
+-- Dumping data for table db_announcement_system.tbl_admins: ~1 rows (approximately)
 INSERT INTO `tbl_admins` (`id`, `username`, `password_hash`, `created_at`) VALUES
 	(1, 'admin', '$2y$10$gwfp5E25nYfDync77HZQ0umD18NFX9iwr0z43oXH5W9.tgz4/BOdu', '2026-03-31 14:31:07');
 
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `tbl_announcements` (
   CONSTRAINT `tbl_announcements_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `tbl_subjects` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table db_announcement_system.tbl_announcements: ~15 rows (approximately)
+-- Dumping data for table db_announcement_system.tbl_announcements: ~14 rows (approximately)
 INSERT INTO `tbl_announcements` (`id`, `admin_id`, `subject_id`, `title`, `content`, `due_date`, `due_time`, `end_date`, `status`, `created_at`, `updated_at`) VALUES
 	(1, 1, 1, 'Reporting', 'Chapter 6', '2026-04-06', NULL, NULL, 'active', '2026-03-31 14:37:49', '2026-03-31 16:25:41'),
 	(2, 1, 4, 'Midterm Review', 'Bali i-rereview lang tayo ni sir', '2026-04-07', NULL, NULL, 'active', '2026-03-31 14:57:52', '2026-03-31 14:57:52'),
@@ -70,8 +70,7 @@ INSERT INTO `tbl_announcements` (`id`, `admin_id`, `subject_id`, `title`, `conte
 	(14, 1, 8, 'Submission', 'Pgs. 13, 14, 15, 25, 26, 27', '2026-04-09', NULL, NULL, 'active', '2026-03-31 16:45:56', '2026-03-31 16:45:56'),
 	(15, 1, 9, 'Books:', 'SCIETS - 320₱\r\nCONTWO - 300₱\r\nRIZAL - 360₱\r\nPEHEF2/INDAYOG - 350₱', NULL, NULL, NULL, 'active', '2026-03-31 16:48:12', '2026-03-31 16:48:12'),
 	(16, 1, 8, 'Study and master executing the:', 'Polka sa Nayon', NULL, NULL, NULL, 'active', '2026-03-31 16:48:35', '2026-04-01 03:57:34'),
-	(21, 1, 6, 'Seatwork 2', 'Coverage: Chapter 3', '2026-04-08', NULL, NULL, 'active', '2026-04-01 03:52:43', '2026-04-01 03:52:43'),
-	(22, 1, 2, 'Submission', 'Chapter 1 to 3', '2026-04-08', NULL, NULL, 'active', '2026-04-01 06:10:43', '2026-04-01 06:10:43');
+	(21, 1, 6, 'Seatwork 2', 'Coverage: Chapter 3', '2026-04-08', NULL, NULL, 'active', '2026-04-01 03:52:43', '2026-04-01 03:52:43');
 
 -- Dumping structure for table db_announcement_system.tbl_audit_log
 CREATE TABLE IF NOT EXISTS `tbl_audit_log` (
@@ -90,7 +89,7 @@ CREATE TABLE IF NOT EXISTS `tbl_audit_log` (
   CONSTRAINT `tbl_audit_log_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `tbl_admins` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table db_announcement_system.tbl_audit_log: ~50 rows (approximately)
+-- Dumping data for table db_announcement_system.tbl_audit_log: ~62 rows (approximately)
 INSERT INTO `tbl_audit_log` (`id`, `admin_id`, `announcement_id`, `deleted_record_id`, `action`, `old_value`, `new_value`, `changed_at`) VALUES
 	(1, 1, 1, NULL, 'created', NULL, '{"subject_id":"1","title":"Reporting","content":"Chapter 6","due_date":"2026-04-01"}', '2026-03-31 14:37:49'),
 	(2, 1, 1, NULL, 'updated', '{"id":1,"admin_id":1,"subject_id":1,"title":"Reporting","content":"Chapter 6","due_date":"2026-04-01","status":"active","created_at":"2026-03-31 22:37:49","updated_at":"2026-03-31 22:37:49"}', '{"subject_id":"1","title":"Reporting","content":"Chapter 6","due_date":"2026-03-31"}', '2026-03-31 14:38:27'),
@@ -151,7 +150,9 @@ INSERT INTO `tbl_audit_log` (`id`, `admin_id`, `announcement_id`, `deleted_recor
 	(57, 1, 12, NULL, 'restored', NULL, NULL, '2026-04-01 06:14:55'),
 	(58, 1, 10, NULL, 'updated', NULL, NULL, '2026-04-01 07:50:47'),
 	(59, 1, 8, NULL, 'updated', '{"id":8,"admin_id":1,"subject_id":5,"title":"Presentation","content":"Topic 4","due_date":"2026-04-02","due_time":null,"end_date":null,"status":"active","created_at":"2026-04-01 00:34:48","updated_at":"2026-04-01 00:34:48"}', '{"id":8,"admin_id":1,"subject_id":5,"title":"Presentation","content":"Topic 4","due_date":"2026-04-07","due_time":null,"end_date":null,"status":"active","created_at":"2026-04-01 00:34:48","updated_at":"2026-04-01 18:18:15"}', '2026-04-01 10:18:15'),
-	(60, 1, 21, NULL, 'updated', '{"id":21,"admin_id":1,"subject_id":6,"title":"Seatwork 2","content":"Coverage: Chapter 3","due_date":"2026-04-08","due_time":null,"end_date":null,"status":"active","created_at":"2026-04-01 11:52:43","updated_at":"2026-04-01 11:52:43"}', '{"id":21,"admin_id":1,"subject_id":6,"title":"Seatwork 2","content":"Coverage: Chapter 3","due_date":"2026-04-08","due_time":null,"end_date":null,"status":"active","created_at":"2026-04-01 11:52:43","updated_at":"2026-04-01 11:52:43"}', '2026-04-01 10:23:22');
+	(60, 1, 21, NULL, 'updated', '{"id":21,"admin_id":1,"subject_id":6,"title":"Seatwork 2","content":"Coverage: Chapter 3","due_date":"2026-04-08","due_time":null,"end_date":null,"status":"active","created_at":"2026-04-01 11:52:43","updated_at":"2026-04-01 11:52:43"}', '{"id":21,"admin_id":1,"subject_id":6,"title":"Seatwork 2","content":"Coverage: Chapter 3","due_date":"2026-04-08","due_time":null,"end_date":null,"status":"active","created_at":"2026-04-01 11:52:43","updated_at":"2026-04-01 11:52:43"}', '2026-04-01 10:23:22'),
+	(61, 1, 22, NULL, 'archived', NULL, '{"id":22,"admin_id":1,"subject_id":2,"title":"Submission","content":"Chapter 1 to 3","due_date":"2026-04-08","due_time":null,"end_date":null,"status":"active","created_at":"2026-04-01 14:10:43","updated_at":"2026-04-01 14:10:43"}', '2026-04-01 11:53:38'),
+	(62, 1, NULL, 22, 'hard_deleted', '{"id":22,"admin_id":1,"subject_id":2,"title":"Submission","content":"Chapter 1 to 3","due_date":"2026-04-08","due_time":null,"end_date":null,"status":"archived","created_at":"2026-04-01 14:10:43","updated_at":"2026-04-01 19:53:38"}', NULL, '2026-04-01 11:53:44');
 
 -- Dumping structure for table db_announcement_system.tbl_subjects
 CREATE TABLE IF NOT EXISTS `tbl_subjects` (

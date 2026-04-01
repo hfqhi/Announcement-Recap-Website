@@ -1,13 +1,19 @@
 <?php
+// admin/index.php
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth_guard.php';
 require_once __DIR__ . '/../includes/helpers.php';
 $pageTitle = "Manage Announcements";
 
+// 1. Fetch all announcements with the new sorting logic
 $allAnnouncements = $pdo->query("SELECT a.*, s.code, s.color_theme
                                  FROM tbl_announcements a
                                  LEFT JOIN tbl_subjects s ON a.subject_id = s.id
                                  ORDER BY ISNULL(a.due_date), a.due_date ASC, s.code ASC, a.created_at DESC")->fetchAll();
+
+// 2. THIS IS WHAT WENT MISSING - Filtering the arrays!
+$active = array_filter($allAnnouncements, fn($a) => $a['status'] === 'active');
+$archived = array_filter($allAnnouncements, fn($a) => $a['status'] === 'archived');
 
 include __DIR__ . '/../includes/header.php';
 ?>
@@ -35,11 +41,24 @@ include __DIR__ . '/../includes/header.php';
                         </tr>
                     </thead>
                     <tbody>
+                        <?php if (empty($active)): ?>
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-3">No active announcements.</td>
+                            </tr>
+                        <?php endif; ?>
                         <?php foreach ($active as $row): ?>
                             <tr>
                                 <td><span class="badge <?= e($row['color_theme'] ?? 'bg-secondary') ?>"><?= e($row['code'] ?? 'DELETED') ?></span></td>
                                 <td><?= e($row['title']) ?></td>
-                                <td><?= $row['due_date'] ? ($row['end_date'] ? date('M d', strtotime($row['due_date'])) . ' - ' . date('M d, Y', strtotime($row['end_date'])) : date('M d, Y', strtotime($row['due_date']))) : '<span class="text-muted">No Date</span>'; ?></td>
+                                <td>
+                                    <?php if ($row['end_date']): ?>
+                                        <?= date('M d', strtotime($row['due_date'])) ?> - <?= date('M d, Y', strtotime($row['end_date'])) ?>
+                                    <?php elseif ($row['due_date']): ?>
+                                        <?= date('M d, Y', strtotime($row['due_date'])) ?>
+                                    <?php else: ?>
+                                        <span class="text-muted">No Date</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td>
                                     <a href="edit.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil-square"></i></a>
                                     <form action="delete.php" method="POST" class="d-inline delete-form">
@@ -68,6 +87,11 @@ include __DIR__ . '/../includes/header.php';
                         </tr>
                     </thead>
                     <tbody>
+                        <?php if (empty($archived)): ?>
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-3">No archived announcements.</td>
+                            </tr>
+                        <?php endif; ?>
                         <?php foreach ($archived as $row): ?>
                             <tr class="table-secondary">
                                 <td><span class="badge <?= e($row['color_theme'] ?? 'bg-secondary') ?>"><?= e($row['code'] ?? 'DELETED') ?></span></td>
