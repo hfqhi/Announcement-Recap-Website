@@ -1,23 +1,23 @@
 <?php
-// public/index.php
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/helpers.php';
 $pageTitle = "Announcement Recap";
 
 $announcements = getActiveAnnouncements($pdo);
-$upcomingDeadlines = array_filter($announcements, fn($a) => !empty($a['due_date']));
+// Only future/today deadlines in the strict "Upcoming" sidebar logic
+$upcomingDeadlines = array_filter($announcements, function ($a) {
+    if (empty($a['due_date'])) return false;
+    return (new DateTime($a['due_date'], new DateTimeZone('Asia/Manila')))->format('Y-m-d') >= (new DateTime('today', new DateTimeZone('Asia/Manila')))->format('Y-m-d');
+});
 $generalInfo = array_filter($announcements, fn($a) => empty($a['due_date']));
 
-// Calendar & Semester Engine Logic
 $month = date('m');
 $year = date('Y');
 $daysInMonth = date('t', mktime(0, 0, 0, $month, 1, $year));
 $firstDayOfWeek = date('w', mktime(0, 0, 0, $month, 1, $year));
-
 $semStart = new DateTime(SEMESTER_START);
-$semDayOfWeek = (int)$semStart->format('w');
 $semStartSunday = clone $semStart;
-$semStartSunday->modify("-$semDayOfWeek days");
+$semStartSunday->modify("-" . (int)$semStart->format('w') . " days");
 
 $calendarEvents = [];
 foreach ($announcements as $a) {
@@ -32,12 +32,8 @@ foreach ($announcements as $a) {
     }
 }
 
-// Build Calendar Grid Array
 $weeks = [];
-$currentWeek = [];
-for ($i = 0; $i < $firstDayOfWeek; $i++) {
-    $currentWeek[] = null;
-}
+$currentWeek = array_fill(0, $firstDayOfWeek, null);
 for ($day = 1; $day <= $daysInMonth; $day++) {
     $currentWeek[] = $day;
     if (count($currentWeek) == 7) {
@@ -46,10 +42,7 @@ for ($day = 1; $day <= $daysInMonth; $day++) {
     }
 }
 if (count($currentWeek) > 0) {
-    while (count($currentWeek) < 7) {
-        $currentWeek[] = null;
-    }
-    $weeks[] = $currentWeek;
+    $weeks[] = array_pad($currentWeek, 7, null);
 }
 
 include __DIR__ . '/../includes/header.php';
@@ -57,9 +50,7 @@ include __DIR__ . '/../includes/header.php';
 <div class="d-flex justify-content-between align-items-end mb-4 mt-3 border-bottom pb-3">
     <div>
         <h1 class="display-6 fw-bold text-uppercase mb-0" style="letter-spacing: 2px;">Announcements Recap</h1>
-        <h5 class="text-danger font-monospace mt-1">
-            <?= date('M d, Y (l)') ?> | <span id="liveClock"><?= date('h:i:s A') ?></span>
-        </h5>
+        <h5 class="text-danger font-monospace mt-1"><?= date('M d, Y (l)') ?> | <span id="liveClock"><?= date('h:i:s A') ?></span></h5>
     </div>
     <div class="btn-group" role="group">
         <button class="btn btn-outline-dark active" id="btn-card" onclick="toggleView('card')"><i class="bi bi-grid"></i> Cards</button>
@@ -71,38 +62,22 @@ include __DIR__ . '/../includes/header.php';
     <h4 class="text-danger mb-3 border-bottom pb-2"><i class="bi bi-clock-history"></i> Upcoming Deadlines</h4>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
         <?php if (empty($upcomingDeadlines)): ?><div class="col-12 text-muted">No upcoming deadlines.</div><?php endif; ?>
-        <?php foreach ($upcomingDeadlines as $row): ?>
+        <?php foreach (array_filter($announcements, fn($a) => !empty($a['due_date'])) as $row): ?>
             <?php $timeStatus = getDaysLeft($row['due_date']); ?>
             <div class="col">
                 <div class="card h-100 shadow-sm border-0 announcement-card">
-                    <div class="card-header border-0 text-center p-0">
-                        <span class='badge w-100 py-2 fs-5 <?= e($row['color_theme']) ?>' style="border-radius: 6px 6px 0 0; letter-spacing: 2px;">
-                            <?= e($row['code']) ?>
-                        </span>
-                    </div>
+                    <div class="card-header border-0 text-center p-0"><span class='badge w-100 py-2 fs-5 <?= e($row['color_theme']) ?>' style="border-radius: 6px 6px 0 0; letter-spacing: 2px;"><?= e($row['code']) ?></span></div>
                     <div class="card-body pt-3 bg-light rounded-bottom d-flex flex-column">
-                        <div class="text-muted small mb-2 border-bottom pb-2">
-                            <i class="bi bi-person-video3"></i> <?= e($row['professor']) ?> <br>
-                            <i class="bi bi-clock"></i> <?= e($row['schedule']) ?>
-                        </div>
+                        <div class="text-muted small mb-2 border-bottom pb-2"><i class="bi bi-person-video3"></i> <?= e($row['professor']) ?> <br><i class="bi bi-clock"></i> <?= e($row['schedule']) ?></div>
                         <h5 class="card-title fw-bold text-dark"><?= e($row['title']) ?></h5>
                         <div class="card-text mb-3 flex-grow-1"><?= nl2br(e($row['content'])) ?></div>
-
                         <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-end">
                             <div class="text-danger fw-bold small">
                                 <i class="bi bi-calendar-check"></i>
-                                <?php if ($row['end_date']): ?>
-                                    <?= date('M d', strtotime($row['due_date'])) ?> - <?= date('M d, Y', strtotime($row['end_date'])) ?>
-                                <?php else: ?>
-                                    <?= date('D, M d', strtotime($row['due_date'])) ?>
-                                    <?php if (!empty($row['due_time'])): ?>
-                                        <br><i class="bi bi-alarm ms-1"></i> <?= date('h:i A', strtotime($row['due_time'])) ?>
-                                    <?php endif; ?>
-                                <?php endif; ?>
+                                <?php if ($row['end_date']): ?> <?= date('M d', strtotime($row['due_date'])) ?> - <?= date('M d, Y', strtotime($row['end_date'])) ?>
+                                <?php else: ?> <?= date('D, M d', strtotime($row['due_date'])) ?> <?php if ($row['due_time']): ?><br><i class="bi bi-alarm ms-1"></i> <?= date('h:i A', strtotime($row['due_time'])) ?><?php endif; ?> <?php endif; ?>
                             </div>
-                            <span class="small <?= $timeStatus['class'] ?> bg-white px-2 py-1 rounded border shadow-sm">
-                                <?= $timeStatus['label'] ?>
-                            </span>
+                            <span class="small <?= $timeStatus['class'] ?> bg-white px-2 py-1 rounded border shadow-sm"><?= $timeStatus['label'] ?></span>
                         </div>
                     </div>
                 </div>
@@ -115,9 +90,7 @@ include __DIR__ . '/../includes/header.php';
         <?php foreach ($generalInfo as $row): ?>
             <div class="col">
                 <div class="card h-100 shadow-sm border-0 announcement-card opacity-75">
-                    <div class="card-header border-0 text-center p-0">
-                        <span class='badge w-100 py-2 fs-5 <?= e($row['color_theme']) ?>' style="border-radius: 6px 6px 0 0; letter-spacing: 2px;"><?= e($row['code']) ?></span>
-                    </div>
+                    <div class="card-header border-0 text-center p-0"><span class='badge w-100 py-2 fs-5 <?= e($row['color_theme']) ?>' style="border-radius: 6px 6px 0 0; letter-spacing: 2px;"><?= e($row['code']) ?></span></div>
                     <div class="card-body pt-3 bg-light rounded-bottom d-flex flex-column">
                         <h5 class="card-title fw-bold text-dark"><?= e($row['title']) ?></h5>
                         <div class="card-text mb-3 flex-grow-1"><?= nl2br(e($row['content'])) ?></div>
@@ -132,10 +105,8 @@ include __DIR__ . '/../includes/header.php';
     <div class="row">
         <div class="col-lg-9">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <h3 class="mb-0 font-monospace"><?= date('F Y') ?></h3>
-                <small class="text-muted fst-italic"><i class="bi bi-info-circle"></i> Semester Week 1 started on <?= date('M d, Y', strtotime(SEMESTER_START)) ?></small>
+                <h3 class="mb-0 font-monospace"><?= date('F Y') ?></h3><small class="text-muted fst-italic"><i class="bi bi-info-circle"></i> Semester Week 1 started on <?= date('M d, Y', strtotime(SEMESTER_START)) ?></small>
             </div>
-
             <div class="bg-white shadow-sm rounded border d-none d-md-block">
                 <div class="cal-strict-grid header bg-light border-bottom">
                     <div class="text-center fw-bold py-2">Wk</div>
@@ -147,22 +118,13 @@ include __DIR__ . '/../includes/header.php';
                     <div class="text-center fw-bold py-2">Fri</div>
                     <div class="text-center fw-bold py-2">Sat</div>
                 </div>
-
                 <?php foreach ($weeks as $weekDays):
                     $firstValidDay = array_values(array_filter($weekDays))[0];
-                    $firstValidDayIndex = array_search($firstValidDay, $weekDays);
-
-                    $sundayOfRow = new DateTime("$year-$month-$firstValidDay");
-                    $sundayOfRow->modify("-$firstValidDayIndex days");
-
-                    $diff = $semStartSunday->diff($sundayOfRow);
-                    $daysDiff = $diff->invert ? -$diff->days : $diff->days;
-                    $weekNum = floor($daysDiff / 7) + 1;
+                    $sundayOfRow = (new DateTime("$year-$month-$firstValidDay"))->modify("-" . array_search($firstValidDay, $weekDays) . " days");
+                    $weekNum = floor(($semStartSunday->diff($sundayOfRow)->invert ? -$semStartSunday->diff($sundayOfRow)->days : $semStartSunday->diff($sundayOfRow)->days) / 7) + 1;
                 ?>
                     <div class="cal-strict-grid row-group border-bottom">
-                        <div class="d-flex align-items-center justify-content-center text-danger fw-bold border-end bg-light">
-                            <?= $weekNum > 0 ? "W{$weekNum}" : "-" ?>
-                        </div>
+                        <div class="d-flex align-items-center justify-content-center text-danger fw-bold border-end bg-light"><?= $weekNum > 0 ? "W{$weekNum}" : "-" ?></div>
                         <?php foreach ($weekDays as $day):
                             if ($day === null): echo "<div class='cal-cell empty border-end'></div>";
                                 continue;
@@ -170,75 +132,51 @@ include __DIR__ . '/../includes/header.php';
                             $isToday = ($day == date('d') && $month == date('m') && $year == date('Y'));
                         ?>
                             <div class='cal-cell border-end p-1 <?= $isToday ? 'bg-light' : '' ?>'>
-                                <div class="d-flex justify-content-between align-items-center mb-1 px-1">
-                                    <span class='fw-bold <?= $isToday ? 'text-primary' : 'text-muted' ?>'><?= $day ?></span>
-                                    <?php if ($isToday): ?><i class="bi bi-star-fill text-warning" style="font-size: 0.8rem;"></i><?php endif; ?>
-                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-1 px-1"><span class='fw-bold <?= $isToday ? 'text-primary' : 'text-muted' ?>'><?= $day ?></span><?php if ($isToday): ?><i class="bi bi-star-fill text-warning" style="font-size: 0.8rem;"></i><?php endif; ?></div>
                                 <div class="event-bars-container">
-                                    <?php if (isset($calendarEvents[$day])): ?>
-                                        <?php foreach ($calendarEvents[$day] as $evt): ?>
+                                    <?php if (isset($calendarEvents[$day])): foreach ($calendarEvents[$day] as $evt): ?>
                                             <div class="event-bar <?= e($evt['color_theme']) ?> text-truncate" title="<?= e($evt['title']) ?>"><?= e($evt['code']) ?></div>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
+                                    <?php endforeach;
+                                    endif; ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
                 <?php endforeach; ?>
             </div>
-
             <div class="d-md-none bg-white p-3 rounded shadow-sm border">
                 <h5 class="text-danger mb-3 border-bottom pb-2"><i class="bi bi-list-task"></i> Monthly Agenda</h5>
-                <?php
-                ksort($calendarEvents); // Ensure days are chronological
-                if (empty($calendarEvents)):
-                ?>
-                    <div class="text-muted text-center py-4">No events scheduled this month.</div>
-                <?php else: ?>
-                    <?php foreach ($calendarEvents as $day => $events): ?>
+                <?php ksort($calendarEvents);
+                if (empty($calendarEvents)): ?><div class="text-muted text-center py-4">No events scheduled.</div>
+                    <?php else: foreach ($calendarEvents as $day => $events): ?>
                         <div class="mb-4">
-                            <div class="fw-bold text-dark border-bottom mb-2 pb-1 d-flex align-items-center">
-                                <?= date('l, M d', mktime(0, 0, 0, $month, $day, $year)) ?>
-                                <?php if ($day == date('d') && $month == date('m') && $year == date('Y')): ?>
-                                    <span class="badge bg-warning text-dark ms-2">Today</span>
-                                <?php endif; ?>
-                            </div>
+                            <div class="fw-bold text-dark border-bottom mb-2 pb-1"><?= date('l, M d', mktime(0, 0, 0, $month, $day, $year)) ?> <?= ($day == date('d') && $month == date('m') && $year == date('Y')) ? '<span class="badge bg-warning text-dark ms-2">Today</span>' : '' ?></div>
                             <div class="d-flex flex-column gap-2">
                                 <?php foreach ($events as $e): ?>
                                     <div class="p-2 border rounded bg-light shadow-sm">
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <span class="badge <?= e($e['color_theme']) ?>"><?= e($e['code']) ?></span>
-                                            <?php if (!empty($e['due_time'])): ?>
-                                                <small class="text-danger fw-bold"><i class="bi bi-clock"></i> <?= date('h:i A', strtotime($e['due_time'])) ?></small>
-                                            <?php endif; ?>
-                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-1"><span class="badge <?= e($e['color_theme']) ?>"><?= e($e['code']) ?></span><?php if ($e['due_time']): ?><small class="text-danger fw-bold"><i class="bi bi-clock"></i> <?= date('h:i A', strtotime($e['due_time'])) ?></small><?php endif; ?></div>
                                         <div class="fw-bold text-dark" style="font-size: 0.95rem;"><?= e($e['title']) ?></div>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                <?php endforeach;
+                endif; ?>
             </div>
-
         </div>
-
         <div class="col-lg-3 mt-4 mt-lg-0">
             <h4 class="text-danger border-bottom pb-2">Upcoming</h4>
-            <ul class="list-group list-group-flush shadow-sm rounded">
-                <?php if (empty($upcomingDeadlines)): ?>
-                    <li class="list-group-item text-muted small">No upcoming tasks.</li>
-                <?php endif; ?>
-                <?php foreach (array_slice($upcomingDeadlines, 0, 8) as $a): ?>
-                    <li class='list-group-item'>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class='text-muted'><?= date('M d (D)', strtotime($a['due_date'])) ?></small>
-                            <span class='badge <?= e($a['color_theme']) ?>' style="font-size: 0.7rem;"><?= e($a['code']) ?></span>
-                        </div>
-                        <div class="fw-bold text-dark" style="font-size: 0.9rem; leading: 1.2;"><?= e($a['title']) ?></div>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
+            <div style="max-height: 600px; overflow-y: auto;" class="pe-2 shadow-sm rounded">
+                <ul class="list-group list-group-flush">
+                    <?php if (empty($upcomingDeadlines)): ?><li class="list-group-item text-muted small">No upcoming tasks.</li><?php endif; ?>
+                    <?php foreach ($upcomingDeadlines as $a): ?>
+                        <li class='list-group-item'>
+                            <div class="d-flex justify-content-between align-items-center mb-1"><small class='text-muted'><?= date('M d (D)', strtotime($a['due_date'])) ?></small><span class='badge <?= e($a['color_theme']) ?>' style="font-size: 0.7rem;"><?= e($a['code']) ?></span></div>
+                            <div class="fw-bold text-dark" style="font-size: 0.9rem;"><?= e($a['title']) ?></div>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
         </div>
     </div>
 </div>

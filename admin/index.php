@@ -4,9 +4,10 @@ require_once __DIR__ . '/../includes/auth_guard.php';
 require_once __DIR__ . '/../includes/helpers.php';
 $pageTitle = "Manage Announcements";
 
-$allAnnouncements = $pdo->query("SELECT a.*, s.code, s.color_theme FROM tbl_announcements a LEFT JOIN tbl_subjects s ON a.subject_id = s.id ORDER BY ISNULL(a.due_date), a.due_date ASC, a.created_at DESC")->fetchAll();
-$active = array_filter($allAnnouncements, fn($a) => $a['status'] === 'active');
-$archived = array_filter($allAnnouncements, fn($a) => $a['status'] === 'archived');
+$allAnnouncements = $pdo->query("SELECT a.*, s.code, s.color_theme
+                                 FROM tbl_announcements a
+                                 LEFT JOIN tbl_subjects s ON a.subject_id = s.id
+                                 ORDER BY ISNULL(a.due_date), a.due_date ASC, s.code ASC, a.created_at DESC")->fetchAll();
 
 include __DIR__ . '/../includes/header.php';
 ?>
