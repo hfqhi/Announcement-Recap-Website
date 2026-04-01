@@ -14,7 +14,7 @@ body {
   opacity: 1 !important;
 }
 
-/* Subject Themes (Text forced white or black for readability) */
+/* Subject Themes */
 .bg-sciets {
   background-color: #f48fb1 !important;
   color: #fff !important;
@@ -52,10 +52,9 @@ body {
   color: #fff !important;
 }
 
-/* Strict CSS Grid Calendar (Fixes Alignment completely) */
+/* Strict CSS Grid Calendar (Desktop) */
 .cal-strict-grid {
   display: grid;
-  /* 1st col is Week number (50px), the rest are 7 equal fractions */
   grid-template-columns: 50px repeat(7, 1fr);
 }
 .cal-strict-grid.row-group {
@@ -70,7 +69,7 @@ body {
   background-color: #fcfcfc;
 }
 
-/* Clean Event Bars (Google Calendar Style) */
+/* Clean Event Bars */
 .event-bars-container {
   display: flex;
   flex-direction: column;
@@ -83,4 +82,34 @@ body {
   border-radius: 4px;
   width: 100%;
   cursor: default;
+}
+
+/* =========================================
+   STAGE 6: MOBILE RESPONSIVENESS TWEAKS
+========================================= */
+
+/* Small devices (landscape phones, 576px and down) */
+@media (max-width: 576px) {
+  /* Give cards more breathing room on small screens */
+  .announcement-card .card-body {
+    padding: 0.75rem;
+  }
+  .announcement-card .card-header .badge {
+    font-size: 1rem !important;
+    padding: 0.4rem 0 !important;
+  }
+}
+
+/* Extra small devices (portrait phones, 400px and down) */
+@media (max-width: 400px) {
+  /* Prevent the long "CPE-2B 2nd Semester SY..." from breaking the navbar */
+  .navbar-brand {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70vw;
+    display: inline-block;
+    vertical-align: middle;
+  }
 }
