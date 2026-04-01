@@ -1,7 +1,7 @@
-`<?php
-    require_once __DIR__ . '/../config/config.php';
-    $isPublicView = (strpos($_SERVER['REQUEST_URI'], '/admin') === false && strpos($_SERVER['REQUEST_URI'], '/auth') === false);
-    ?>
+<?php
+require_once __DIR__ . '/../config/config.php';
+$isAdmin = isset($_SESSION['admin_id']);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -17,24 +17,26 @@
 <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow-sm">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="/"> CPE-2B 2nd Semester SY 2025-2026</a>
-            <?php if (!$isPublicView): ?>
+
+            <?php if ($isAdmin): ?>
+                <a class="navbar-brand fw-bold" href="/admin/index.php"><i class="bi bi-shield-lock"></i> Admin Dashboard</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
-                        <?php if (isset($_SESSION['admin_id'])): ?>
-                            <li class="nav-item"><a class="nav-link" href="/admin/index.php">Announcements</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/admin/subjects.php">Subjects</a></li>
-                            <li class="nav-item"><a class="nav-link" href="/admin/history.php">Audit Log</a></li>
-                            <li class="nav-item"><a class="nav-link text-danger" href="/auth/logout.php">Logout</a></li>
-                        <?php else: ?>
-                            <li class="nav-item"><a class="nav-link" href="/auth/login.php">Admin Login</a></li>
-                        <?php endif; ?>
+                        <li class="nav-item"><a class="nav-link" href="/public/index.php">Portal</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/admin/index.php">Announcements</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/admin/subjects.php">Subjects</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/admin/history.php">Audit Log</a></li>
+                        <li class="nav-item ms-lg-3"><a class="nav-link text-danger fw-bold" href="/auth/logout.php">Logout</a></li>
                     </ul>
                 </div>
+
+            <?php else: ?>
+                <a class="navbar-brand fw-bold mx-auto" href="/">CPE-2B 2nd Semester SY 2025-2026</a>
             <?php endif; ?>
+
         </div>
     </nav>
     <div class="container pb-5">
