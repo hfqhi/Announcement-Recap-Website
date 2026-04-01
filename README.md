@@ -24,7 +24,6 @@ The primary goal of this system is to eliminate the chaos of scattered class upd
 * **Comprehensive Data Management:** Full CRUD (Create, Read, Update, Delete) capabilities for both Class Subjects (managing professors, assigning UI color themes, defining schedules) and specific Announcements.
 * **Advanced Audit Logging:** A granular tracking system built for absolute accountability. Every single database modification (creates, updates, archives, restores, and hard-deletes) is tracked. 
   * *JSON Diff Viewer:* When an admin edits an announcement, the system captures a JSON snapshot of the `old_value` and the `new_value`, allowing admins to click "View" and see exactly which specific fields were altered.
-* **Secure Account Settings:** Administrators can securely update their usernames and generate new cryptographic password hashes directly from the dashboard UI.
 * **Cascade Deletion Protection:** To prevent silent data loss, deleting a Subject automatically triggers a backend routine that pre-logs the hard-deletion of all its associated child announcements before safely executing the cascade.
 
 ### 🔒 Security Implementations
