@@ -1,5 +1,7 @@
 # 📢 CPE-2B Class Announcement & Recap Portal
 
+**🌐 Live Site:** [cpe-announce.me](https://cpe-announce.me)
+
 A robust, mobile-responsive web application designed to centralize college class schedules, assignment deadlines, and general announcements. Built with a clean PHP/MySQL architecture, it features a student-facing public portal and a secure admin dashboard equipped with advanced audit logging.
 
 ## 🎯 Purpose & Vision
