@@ -1,0 +1,14 @@
+Options -Indexes
+RewriteEngine On
+
+# 1. Redirect IP access to the secure domain
+RewriteCond %{HTTP_HOST} ^159\.223\.66\.255$
+RewriteRule ^(.*)$ https://cpe-announce.me/$1 [L,R=301]
+
+# 2. Map the root to public index
+RewriteRule ^$ public/index.php [L]
+
+# 3. Handle routing for internal pages
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/$1 [L]

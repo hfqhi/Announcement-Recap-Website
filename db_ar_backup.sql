@@ -1,7 +1,7 @@
 -- --------------------------------------------------------
 -- Host:                         127.0.0.1
--- Server version:               8.0.30 - MySQL Community Server - GPL
--- Server OS:                    Win64
+-- Server version:               8.0.45-0ubuntu0.24.04.1 - (Ubuntu)
+-- Server OS:                    Linux
 -- HeidiSQL Version:             12.1.0.6537
 -- --------------------------------------------------------
 
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `tbl_admins` (
   UNIQUE KEY `username` (`username`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table db_announcement_system.tbl_admins: ~1 rows (approximately)
+-- Dumping data for table db_announcement_system.tbl_admins: ~0 rows (approximately)
 INSERT INTO `tbl_admins` (`id`, `username`, `password_hash`, `created_at`) VALUES
 	(1, 'admin', '$2y$10$gwfp5E25nYfDync77HZQ0umD18NFX9iwr0z43oXH5W9.tgz4/BOdu', '2026-03-31 14:31:07');
 
@@ -50,24 +50,25 @@ CREATE TABLE IF NOT EXISTS `tbl_announcements` (
   KEY `subject_id` (`subject_id`),
   CONSTRAINT `tbl_announcements_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `tbl_admins` (`id`) ON DELETE SET NULL,
   CONSTRAINT `tbl_announcements_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `tbl_subjects` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table db_announcement_system.tbl_announcements: ~14 rows (approximately)
+-- Dumping data for table db_announcement_system.tbl_announcements: ~15 rows (approximately)
 INSERT INTO `tbl_announcements` (`id`, `admin_id`, `subject_id`, `title`, `content`, `due_date`, `end_date`, `status`, `created_at`, `updated_at`) VALUES
 	(1, 1, 1, 'Reporting', 'Chapter 6', '2026-04-06', NULL, 'active', '2026-03-31 14:37:49', '2026-03-31 16:25:41'),
 	(2, 1, 4, 'Midterm Review', 'Bali i-rereview lang tayo ni sir', '2026-04-07', NULL, 'active', '2026-03-31 14:57:52', '2026-03-31 14:57:52'),
 	(4, 1, 1, 'Submission', 'Chapter 1 and 2', '2026-04-06', NULL, 'active', '2026-03-31 16:26:39', '2026-03-31 16:26:39'),
 	(5, 1, 2, 'Midterm Exam', 'Coverage: Chapter 1 to 5', '2026-04-06', NULL, 'active', '2026-03-31 16:28:07', '2026-03-31 16:28:07'),
 	(6, 1, 3, 'Quiz 1', 'Coverage: \r\n1. Simple Interest\r\n2. Compound Interest\r\n3. Effective Rate of Interest\r\n4. Equation of Value\r\n5. Discrete Payment\r\n6. Continuous Compounding Interest\r\n7. Banker s Discount', '2026-04-06', NULL, 'active', '2026-03-31 16:31:32', '2026-03-31 16:42:19'),
-	(7, 1, 9, 'Midterm Week', 'Hell week shit', '2026-04-06', '2026-04-09', 'active', '2026-03-31 16:33:14', '2026-03-31 16:33:14'),
 	(8, 1, 5, 'Presentation', 'Topic 4', '2026-04-02', NULL, 'active', '2026-03-31 16:34:48', '2026-03-31 16:34:48'),
 	(9, 1, 6, 'Quiz 1', 'Coverage: Chapter 1 and 2', '2026-04-08', NULL, 'active', '2026-03-31 16:35:33', '2026-03-31 16:36:12'),
-	(10, 1, 7, 'Reporting', 'Chapter 6', '2026-04-01', NULL, 'active', '2026-03-31 16:38:29', '2026-03-31 17:56:37'),
-	(12, 1, 7, 'Submission', 'Chapter 1 to 3', '2026-04-08', NULL, 'active', '2026-03-31 16:39:24', '2026-03-31 16:39:24'),
+	(10, 1, 7, 'Reporting', 'Chapter 6', '2026-04-08', NULL, 'active', '2026-03-31 16:38:29', '2026-04-01 07:50:47'),
+	(12, 1, 7, 'Submission', 'Chapter 1 to 3', '2026-04-08', NULL, 'active', '2026-03-31 16:39:24', '2026-04-01 06:14:55'),
 	(13, 1, 3, 'Notebook', 'Provide a notebook for additional points.', NULL, NULL, 'active', '2026-03-31 16:44:17', '2026-03-31 16:44:17'),
 	(14, 1, 8, 'Submission', 'Pgs. 13, 14, 15, 25, 26, 27', '2026-04-09', NULL, 'active', '2026-03-31 16:45:56', '2026-03-31 16:45:56'),
 	(15, 1, 9, 'Books:', 'SCIETS - 320₱\r\nCONTWO - 300₱\r\nRIZAL - 360₱\r\nPEHEF2/INDAYOG - 350₱', NULL, NULL, 'active', '2026-03-31 16:48:12', '2026-03-31 16:48:12'),
-	(16, 1, 8, 'Study and master executing the:', '1. Fundamental Positions of Arms and Feet\r\na. Arms\r\nb. Feet\r\nc. Combination\r\n2. Basic Steps in 2/4 measure\r\n-Touch Step\r\n-Bleking\r\n-Close Step\r\n-Hop Step\r\n-Brush Step\r\n-Swing Step\r\n-Slide Step\r\n3. Basic Steps in 3/4 measure\r\n-Waltz\r\n-Cross Waltz \r\n-Waltz Balance\r\n-Mazurka\r\n-Redoba', NULL, NULL, 'active', '2026-03-31 16:48:35', '2026-03-31 16:48:35');
+	(16, 1, 8, 'Study and master executing the:', 'Polka sa Nayon', NULL, NULL, 'active', '2026-03-31 16:48:35', '2026-04-01 03:57:34'),
+	(21, 1, 6, 'Seatwork 2', 'Coverage: Chapter 3', '2026-04-08', NULL, 'active', '2026-04-01 03:52:43', '2026-04-01 03:52:43'),
+	(22, 1, 2, 'Submission', 'Chapter 1 to 3', '2026-04-08', NULL, 'active', '2026-04-01 06:10:43', '2026-04-01 06:10:43');
 
 -- Dumping structure for table db_announcement_system.tbl_audit_log
 CREATE TABLE IF NOT EXISTS `tbl_audit_log` (
@@ -81,9 +82,9 @@ CREATE TABLE IF NOT EXISTS `tbl_audit_log` (
   PRIMARY KEY (`id`),
   KEY `admin_id` (`admin_id`),
   CONSTRAINT `tbl_audit_log_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `tbl_admins` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table db_announcement_system.tbl_audit_log: ~36 rows (approximately)
+-- Dumping data for table db_announcement_system.tbl_audit_log: ~58 rows (approximately)
 INSERT INTO `tbl_audit_log` (`id`, `admin_id`, `announcement_id`, `action`, `old_value`, `new_value`, `changed_at`) VALUES
 	(1, 1, 1, 'created', NULL, '{"subject_id":"1","title":"Reporting","content":"Chapter 6","due_date":"2026-04-01"}', '2026-03-31 14:37:49'),
 	(2, 1, 1, 'updated', '{"id":1,"admin_id":1,"subject_id":1,"title":"Reporting","content":"Chapter 6","due_date":"2026-04-01","status":"active","created_at":"2026-03-31 22:37:49","updated_at":"2026-03-31 22:37:49"}', '{"subject_id":"1","title":"Reporting","content":"Chapter 6","due_date":"2026-03-31"}', '2026-03-31 14:38:27'),
@@ -120,7 +121,29 @@ INSERT INTO `tbl_audit_log` (`id`, `admin_id`, `announcement_id`, `action`, `old
 	(33, 1, 15, 'created', NULL, '{"subject_id":"9","title":"Books:","content":"SCIETS - 320\\u20b1\\r\\nCONTWO - 300\\u20b1\\r\\nRIZAL - 360\\u20b1\\r\\nPEHEF2\\/INDAYOG - 350\\u20b1","due_date":"","end_date":""}', '2026-03-31 16:48:12'),
 	(34, 1, 16, 'created', NULL, '{"subject_id":"8","title":"Study and master executing the:","content":"1. Fundamental Positions of Arms and Feet\\r\\na. Arms\\r\\nb. Feet\\r\\nc. Combination\\r\\n2. Basic Steps in 2\\/4 measure\\r\\n-Touch Step\\r\\n-Bleking\\r\\n-Close Step\\r\\n-Hop Step\\r\\n-Brush Step\\r\\n-Swing Step\\r\\n-Slide Step\\r\\n3. Basic Steps in 3\\/4 measure\\r\\n-Waltz\\r\\n-Cross Waltz \\r\\n-Waltz Balance\\r\\n-Mazurka\\r\\n-Redoba","due_date":"","end_date":""}', '2026-03-31 16:48:35'),
 	(35, 1, 10, 'archived', NULL, NULL, '2026-03-31 17:56:32'),
-	(36, 1, 10, 'restored', NULL, NULL, '2026-03-31 17:56:37');
+	(36, 1, 10, 'restored', NULL, NULL, '2026-03-31 17:56:37'),
+	(37, 1, 17, 'created', NULL, NULL, '2026-03-31 22:13:30'),
+	(38, 1, 17, 'archived', NULL, NULL, '2026-03-31 22:13:39'),
+	(39, 1, NULL, 'permanently deleted (ID:17)', NULL, NULL, '2026-03-31 22:13:45'),
+	(40, 1, 18, 'created', NULL, NULL, '2026-03-31 22:14:29'),
+	(41, 1, 18, 'archived', NULL, NULL, '2026-03-31 22:14:53'),
+	(42, 1, 19, 'created', NULL, NULL, '2026-03-31 22:15:26'),
+	(43, 1, 19, 'archived', NULL, NULL, '2026-03-31 22:23:31'),
+	(44, 1, 20, 'created', NULL, NULL, '2026-03-31 22:24:14'),
+	(45, 1, 20, 'archived', NULL, NULL, '2026-03-31 22:24:32'),
+	(46, 1, NULL, 'permanently deleted (ID:19)', NULL, NULL, '2026-03-31 22:24:36'),
+	(47, 1, NULL, 'permanently deleted (ID:18)', NULL, NULL, '2026-03-31 22:24:46'),
+	(48, 1, NULL, 'permanently deleted (ID:20)', NULL, NULL, '2026-03-31 22:24:51'),
+	(49, 1, 21, 'created', NULL, NULL, '2026-04-01 03:52:43'),
+	(50, 1, 16, 'updated', NULL, NULL, '2026-04-01 03:57:34'),
+	(51, 1, 7, 'archived', NULL, NULL, '2026-04-01 05:43:52'),
+	(52, 1, NULL, 'permanently deleted (ID:7)', NULL, NULL, '2026-04-01 05:43:56'),
+	(53, 1, 12, 'archived', NULL, NULL, '2026-04-01 06:10:05'),
+	(54, 1, 12, 'restored', NULL, NULL, '2026-04-01 06:10:08'),
+	(55, 1, 12, 'archived', NULL, NULL, '2026-04-01 06:10:27'),
+	(56, 1, 22, 'created', NULL, NULL, '2026-04-01 06:10:43'),
+	(57, 1, 12, 'restored', NULL, NULL, '2026-04-01 06:14:55'),
+	(58, 1, 10, 'updated', NULL, NULL, '2026-04-01 07:50:47');
 
 -- Dumping structure for table db_announcement_system.tbl_subjects
 CREATE TABLE IF NOT EXISTS `tbl_subjects` (

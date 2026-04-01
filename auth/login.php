@@ -1,5 +1,4 @@
 <?php
-// auth/login.php
 require_once __DIR__ . '/../includes/db.php';
 $pageTitle = "Login";
 
@@ -14,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($admin && password_verify($password, $admin['password_hash'])) {
         $_SESSION['admin_id'] = $admin['id'];
         $_SESSION['username'] = $admin['username'];
-        header("Location: " . BASE_URL . "/admin/index.php");
+        header("Location: /admin/index.php");
         exit();
     } else {
         $error = "Invalid credentials.";
