@@ -10,7 +10,7 @@ try {
         PDO::ATTR_EMULATE_PREPARES => false,
     ]);
 
-    // Force MySQL to use Manila time for all NOW() and CURRENT_TIMESTAMP operations
+    // Force MySQL to use Manila time
     $pdo->exec("SET time_zone = '+08:00'");
 } catch (PDOException $e) {
     die("Database Connection Failed.");
