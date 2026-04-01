@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['action'
         logAction($pdo, $_SESSION['admin_id'], $id, 'restored');
         setFlash('success', 'Announcement restored!');
     } elseif ($action === 'hard_delete') {
-        logAction($pdo, $_SESSION['admin_id'], null, 'permanently deleted (ID:'.$id.')');
+        logAction($pdo, $_SESSION['admin_id'], null, 'permanently deleted (ID:' . $id . ')');
         $pdo->prepare("DELETE FROM tbl_announcements WHERE id = ?")->execute([$id]);
         setFlash('danger', 'Announcement permanently deleted.');
     }

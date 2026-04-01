@@ -30,7 +30,9 @@ include __DIR__ . '/../includes/header.php';
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="card shadow-sm">
-            <div class="card-header bg-white"><h4>Create Announcement</h4></div>
+            <div class="card-header bg-white">
+                <h4>Create Announcement</h4>
+            </div>
             <div class="card-body">
                 <form method="POST">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -38,7 +40,7 @@ include __DIR__ . '/../includes/header.php';
                     <div class="mb-3">
                         <label>Subject</label>
                         <select name="subject_id" class="form-select" required>
-                            <?php foreach($subjects as $sub): ?>
+                            <?php foreach ($subjects as $sub): ?>
                                 <option value="<?= $sub['id'] ?>"><?= e($sub['code']) ?> - <?= e($sub['name']) ?></option>
                             <?php endforeach; ?>
                         </select>

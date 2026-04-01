@@ -9,7 +9,10 @@ $stmt = $pdo->prepare("SELECT * FROM tbl_announcements WHERE id = ?");
 $stmt->execute([$id]);
 $item = $stmt->fetch();
 
-if (!$item) { header("Location: index.php"); exit(); }
+if (!$item) {
+    header("Location: index.php");
+    exit();
+}
 $subjects = $pdo->query("SELECT id, code, name FROM tbl_subjects ORDER BY code ASC")->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -36,7 +39,9 @@ include __DIR__ . '/../includes/header.php';
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="card shadow-sm">
-            <div class="card-header bg-white"><h4>Edit Announcement</h4></div>
+            <div class="card-header bg-white">
+                <h4>Edit Announcement</h4>
+            </div>
             <div class="card-body">
                 <form method="POST">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -44,7 +49,7 @@ include __DIR__ . '/../includes/header.php';
                     <div class="mb-3">
                         <label>Subject</label>
                         <select name="subject_id" class="form-select" required>
-                            <?php foreach($subjects as $sub): ?>
+                            <?php foreach ($subjects as $sub): ?>
                                 <option value="<?= $sub['id'] ?>" <?= $item['subject_id'] == $sub['id'] ? 'selected' : '' ?>>
                                     <?= e($sub['code']) ?> - <?= e($sub['name']) ?>
                                 </option>

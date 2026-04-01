@@ -27,17 +27,22 @@ include __DIR__ . '/../includes/header.php';
     <div class="card-body p-0 table-responsive">
         <table class="table table-striped table-sm mb-0">
             <thead class="table-dark">
-                <tr><th>Time</th><th>Admin</th><th>Action</th><th>Target Announcement</th></tr>
+                <tr>
+                    <th>Time</th>
+                    <th>Admin</th>
+                    <th>Action</th>
+                    <th>Target Announcement</th>
+                </tr>
             </thead>
             <tbody>
-                <?php foreach($logs as $log): ?>
-                <?php $badgeColor = $actionColors[$log['action']] ?? 'bg-secondary'; ?>
-                <tr>
-                    <td><?= date('M d, H:i', strtotime($log['changed_at'])) ?></td>
-                    <td><?= htmlspecialchars($log['username'] ?? 'Unknown') ?></td>
-                    <td><span class="badge <?= $badgeColor ?>"><?= htmlspecialchars(ucfirst($log['action'])) ?></span></td>
-                    <td><?= htmlspecialchars($log['announcement_title'] ?? 'Deleted/Unknown (ID:'.$log['announcement_id'].')') ?></td>
-                </tr>
+                <?php foreach ($logs as $log): ?>
+                    <?php $badgeColor = $actionColors[$log['action']] ?? 'bg-secondary'; ?>
+                    <tr>
+                        <td><?= date('M d, H:i', strtotime($log['changed_at'])) ?></td>
+                        <td><?= htmlspecialchars($log['username'] ?? 'Unknown') ?></td>
+                        <td><span class="badge <?= $badgeColor ?>"><?= htmlspecialchars(ucfirst($log['action'])) ?></span></td>
+                        <td><?= htmlspecialchars($log['announcement_title'] ?? 'Deleted/Unknown (ID:' . $log['announcement_id'] . ')') ?></td>
+                    </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
