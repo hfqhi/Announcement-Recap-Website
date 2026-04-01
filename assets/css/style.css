@@ -84,3 +84,52 @@ body {
   width: 100%;
   cursor: default;
 }
+
+/* =========================================
+   MOBILE RESPONSIVENESS TWEAKS
+========================================= */
+
+@media (max-width: 768px) {
+  /* Center the main navigation brand on mobile */
+  .navbar .container {
+    justify-content: center !important;
+    text-align: center;
+  }
+  .navbar-brand {
+    font-size: 1.1rem;
+    white-space: normal;
+  }
+
+  /* Give cards more breathing room on small screens */
+  .announcement-card .card-body {
+    padding: 0.75rem;
+  }
+  .announcement-card .card-header .badge {
+    font-size: 1rem !important;
+    padding: 0.4rem 0 !important;
+  }
+
+  /* Keep the desktop calendar layout intact, but allow horizontal swiping */
+  #view-calendar .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cal-strict-grid {
+    min-width: 800px; /* Forces the grid to maintain desktop proportions */
+  }
+}
+
+/* Extra small devices (portrait phones, 400px and down) */
+@media (max-width: 400px) {
+  /* Prevent the long "CPE-2B 2nd Semester SY..." from breaking the navbar */
+  .navbar-brand {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90vw;
+    display: inline-block;
+    vertical-align: middle;
+  }
+}

@@ -4,7 +4,6 @@ ini_set('session.cookie_httponly', 1);
 ini_set('session.use_only_cookies', 1);
 ini_set('session.cookie_samesite', 'Strict');
 
-// Auto-enable Secure Cookies if on HTTPS
 if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
     ini_set('session.cookie_secure', 1);
 }
@@ -22,16 +21,7 @@ define('DB_USER', 'cpe_user');
 define('DB_PASS', 'PortalPass123!');
 define('DB_NAME', 'db_announcement_system');
 
-try {
-    $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4", DB_USER, DB_PASS);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("Database Connection Failed.");
-}
-
 define('APP_NAME', 'CPE2B Announcements');
-// Dynamically set BASE_URL to empty for root-level domain support
 define('BASE_URL', '');
 define('SEMESTER_START', '2026-02-09');
 date_default_timezone_set('Asia/Manila');

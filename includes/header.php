@@ -1,7 +1,7 @@
-<?php
-require_once __DIR__ . '/../config/config.php';
-$isPublicView = (strpos($_SERVER['REQUEST_URI'], '/admin') === false && strpos($_SERVER['REQUEST_URI'], '/auth') === false);
-?>
+`<?php
+    require_once __DIR__ . '/../config/config.php';
+    $isPublicView = (strpos($_SERVER['REQUEST_URI'], '/admin') === false && strpos($_SERVER['REQUEST_URI'], '/auth') === false);
+    ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -27,6 +27,7 @@ $isPublicView = (strpos($_SERVER['REQUEST_URI'], '/admin') === false && strpos($
                         <?php if (isset($_SESSION['admin_id'])): ?>
                             <li class="nav-item"><a class="nav-link" href="/admin/index.php">Announcements</a></li>
                             <li class="nav-item"><a class="nav-link" href="/admin/subjects.php">Subjects</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/admin/history.php">Audit Log</a></li>
                             <li class="nav-item"><a class="nav-link text-danger" href="/auth/logout.php">Logout</a></li>
                         <?php else: ?>
                             <li class="nav-item"><a class="nav-link" href="/auth/login.php">Admin Login</a></li>

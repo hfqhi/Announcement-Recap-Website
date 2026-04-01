@@ -5,6 +5,9 @@ require_once __DIR__ . '/../includes/helpers.php';
 $pageTitle = "Announcement Recap";
 
 $announcements = getActiveAnnouncements($pdo);
+
+// Fix: Removed the aggressive date filter. It now grabs ALL active announcements with a due date.
+// The getDaysLeft() helper will automatically flag passed dates as "Overdue" natively.
 $upcomingDeadlines = array_filter($announcements, fn($a) => !empty($a['due_date']));
 $generalInfo = array_filter($announcements, fn($a) => empty($a['due_date']));
 
@@ -14,11 +17,9 @@ $year = date('Y');
 $daysInMonth = date('t', mktime(0, 0, 0, $month, 1, $year));
 $firstDayOfWeek = date('w', mktime(0, 0, 0, $month, 1, $year));
 
-// Calculate the exact Sunday of the week the semester started
 $semStart = new DateTime(SEMESTER_START);
-$semDayOfWeek = (int)$semStart->format('w');
 $semStartSunday = clone $semStart;
-$semStartSunday->modify("-$semDayOfWeek days");
+$semStartSunday->modify("-" . (int)$semStart->format('w') . " days");
 
 $calendarEvents = [];
 foreach ($announcements as $a) {
@@ -35,10 +36,7 @@ foreach ($announcements as $a) {
 
 // Build Calendar Grid Array
 $weeks = [];
-$currentWeek = [];
-for ($i = 0; $i < $firstDayOfWeek; $i++) {
-    $currentWeek[] = null;
-}
+$currentWeek = array_fill(0, $firstDayOfWeek, null);
 for ($day = 1; $day <= $daysInMonth; $day++) {
     $currentWeek[] = $day;
     if (count($currentWeek) == 7) {
@@ -47,16 +45,13 @@ for ($day = 1; $day <= $daysInMonth; $day++) {
     }
 }
 if (count($currentWeek) > 0) {
-    while (count($currentWeek) < 7) {
-        $currentWeek[] = null;
-    }
-    $weeks[] = $currentWeek;
+    $weeks[] = array_pad($currentWeek, 7, null);
 }
 
 include __DIR__ . '/../includes/header.php';
 ?>
-<div class="d-flex justify-content-between align-items-end mb-4 mt-3 border-bottom pb-3">
-    <div>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-end mb-4 mt-3 border-bottom pb-3 text-center text-md-start">
+    <div class="mb-3 mb-md-0">
         <h1 class="display-6 fw-bold text-uppercase mb-0" style="letter-spacing: 2px;">Announcements Recap</h1>
         <h5 class="text-danger font-monospace mt-1">
             <?= date('M d, Y (l)') ?> | <span id="liveClock"><?= date('h:i:s A') ?></span>
@@ -73,6 +68,7 @@ include __DIR__ . '/../includes/header.php';
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
         <?php if (empty($upcomingDeadlines)): ?><div class="col-12 text-muted">No upcoming deadlines.</div><?php endif; ?>
         <?php foreach ($upcomingDeadlines as $row): ?>
+            <?php $timeStatus = getDaysLeft($row['due_date']); ?>
             <div class="col">
                 <div class="card h-100 shadow-sm border-0 announcement-card">
                     <div class="card-header border-0 text-center p-0">
@@ -87,9 +83,22 @@ include __DIR__ . '/../includes/header.php';
                         </div>
                         <h5 class="card-title fw-bold text-dark"><?= e($row['title']) ?></h5>
                         <div class="card-text mb-3 flex-grow-1"><?= nl2br(e($row['content'])) ?></div>
-                        <div class="mt-auto pt-2 text-danger fw-bold small border-top">
-                            <i class="bi bi-calendar-check"></i>
-                            <?= $row['end_date'] ? date('M d', strtotime($row['due_date'])) . ' - ' . date('M d, Y', strtotime($row['end_date'])) : date('D, M d', strtotime($row['due_date'])) ?>
+
+                        <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-end">
+                            <div class="text-danger fw-bold small">
+                                <i class="bi bi-calendar-check"></i>
+                                <?php if ($row['end_date']): ?>
+                                    <?= date('M d', strtotime($row['due_date'])) ?> - <?= date('M d, Y', strtotime($row['end_date'])) ?>
+                                <?php else: ?>
+                                    <?= date('D, M d', strtotime($row['due_date'])) ?>
+                                    <?php if (!empty($row['due_time'])): ?>
+                                        <br><i class="bi bi-alarm ms-1"></i> <?= date('h:i A', strtotime($row['due_time'])) ?>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            </div>
+                            <span class="small <?= $timeStatus['class'] ?> bg-white px-2 py-1 rounded border shadow-sm">
+                                <?= $timeStatus['label'] ?>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -118,12 +127,12 @@ include __DIR__ . '/../includes/header.php';
 <div id="view-calendar" style="display: none;">
     <div class="row">
         <div class="col-lg-9">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h3 class="mb-0 font-monospace"><?= date('F Y') ?></h3>
-                <small class="text-muted fst-italic"><i class="bi bi-info-circle"></i> Semester Week 1 started on <?= date('M d, Y', strtotime(SEMESTER_START)) ?></small>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-2">
+                <h3 class="mb-0 font-monospace text-center text-md-start"><?= date('F Y') ?></h3>
+                <small class="text-muted fst-italic text-center text-md-end mt-2 mt-md-0"><i class="bi bi-info-circle"></i> Semester Week 1 started on <?= date('M d, Y', strtotime(SEMESTER_START)) ?></small>
             </div>
 
-            <div class="bg-white shadow-sm rounded border">
+            <div class="bg-white shadow-sm rounded border table-responsive">
                 <div class="cal-strict-grid header bg-light border-bottom">
                     <div class="text-center fw-bold py-2">Wk</div>
                     <div class="text-center fw-bold py-2">Sun</div>
@@ -136,17 +145,9 @@ include __DIR__ . '/../includes/header.php';
                 </div>
 
                 <?php foreach ($weeks as $weekDays):
-                    // Pinpoint the exact Sunday of this specific calendar row
                     $firstValidDay = array_values(array_filter($weekDays))[0];
-                    $firstValidDayIndex = array_search($firstValidDay, $weekDays);
-
-                    $sundayOfRow = new DateTime("$year-$month-$firstValidDay");
-                    $sundayOfRow->modify("-$firstValidDayIndex days");
-
-                    // Calculate exact week difference between the two Sundays
-                    $diff = $semStartSunday->diff($sundayOfRow);
-                    $daysDiff = $diff->invert ? -$diff->days : $diff->days;
-                    $weekNum = floor($daysDiff / 7) + 1;
+                    $sundayOfRow = (new DateTime("$year-$month-$firstValidDay"))->modify("-" . array_search($firstValidDay, $weekDays) . " days");
+                    $weekNum = floor(($semStartSunday->diff($sundayOfRow)->invert ? -$semStartSunday->diff($sundayOfRow)->days : $semStartSunday->diff($sundayOfRow)->days) / 7) + 1;
                 ?>
                     <div class="cal-strict-grid row-group border-bottom">
                         <div class="d-flex align-items-center justify-content-center text-danger fw-bold border-end bg-light">
@@ -176,16 +177,27 @@ include __DIR__ . '/../includes/header.php';
                 <?php endforeach; ?>
             </div>
         </div>
+
         <div class="col-lg-3 mt-4 mt-lg-0">
             <h4 class="text-danger border-bottom pb-2">Upcoming</h4>
-            <ul class="list-group list-group-flush shadow-sm rounded">
-                <?php foreach (array_slice($upcomingDeadlines, 0, 8) as $a): ?>
-                    <li class='list-group-item'>
-                        <small class='d-block text-muted'><?= date('M d (D)', strtotime($a['due_date'])) ?></small>
-                        <strong><?= e($a['title']) ?></strong><span class='badge <?= e($a['color_theme']) ?> float-end mt-1'><?= e($a['code']) ?></span>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
+
+            <div style="max-height: 650px; overflow-y: auto; padding-right: 5px;">
+                <ul class="list-group list-group-flush shadow-sm rounded">
+                    <?php if (empty($upcomingDeadlines)): ?>
+                        <li class="list-group-item text-muted small">No upcoming tasks.</li>
+                    <?php endif; ?>
+                    <?php foreach ($upcomingDeadlines as $a): ?>
+                        <li class='list-group-item'>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <small class='text-muted'><?= date('M d (D)', strtotime($a['due_date'])) ?></small>
+                                <span class='badge <?= e($a['color_theme']) ?>' style="font-size: 0.7rem;"><?= e($a['code']) ?></span>
+                            </div>
+                            <div class="fw-bold text-dark" style="font-size: 0.9rem; leading: 1.2;"><?= e($a['title']) ?></div>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+
         </div>
     </div>
 </div>
