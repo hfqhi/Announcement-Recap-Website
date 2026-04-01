@@ -82,6 +82,7 @@ include __DIR__ . '/../includes/header.php';
                             <th>Code</th>
                             <th>Name</th>
                             <th>Professor</th>
+                            <th>Schedule</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -91,6 +92,7 @@ include __DIR__ . '/../includes/header.php';
                                 <td><span class="badge <?= e($sub['color_theme']) ?>"><?= e($sub['code']) ?></span></td>
                                 <td><?= e($sub['name']) ?></td>
                                 <td><?= e($sub['professor']) ?></td>
+                                <td><?= e($sub['schedule']) ?></td>
                                 <td>
                                     <button class="btn btn-sm btn-outline-primary" style="min-height:38px;" onclick='openSubjectModal("edit", <?= json_encode($sub) ?>)' title="Edit"><i class="bi bi-pencil-square"></i><span class="d-none d-sm-inline ms-1">Edit</span></button>
                                     <form method="POST" class="d-inline delete-form">
@@ -116,6 +118,7 @@ include __DIR__ . '/../includes/header.php';
                         <tr>
                             <th>Code</th>
                             <th>Name</th>
+                            <th>Schedule</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -124,6 +127,7 @@ include __DIR__ . '/../includes/header.php';
                             <tr class="table-secondary">
                                 <td><span class="badge <?= e($sub['color_theme']) ?>"><?= e($sub['code']) ?></span></td>
                                 <td><del><?= e($sub['name']) ?></del></td>
+                                <td><del><?= e($sub['schedule']) ?></del></td>
                                 <td>
                                     <form method="POST" class="d-inline">
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
