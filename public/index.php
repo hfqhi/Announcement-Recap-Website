@@ -6,7 +6,7 @@ $pageTitle = "Announcement Recap";
 
 $announcements = getActiveAnnouncements($pdo);
 
-// Fix: Removed the aggressive date filter. It now grabs ALL active announcements with a due date.
+// Removed the aggressive date filter. It now grabs ALL active announcements with a due date.
 // The getDaysLeft() helper will automatically flag passed dates as "Overdue" natively.
 $upcomingDeadlines = array_filter($announcements, fn($a) => !empty($a['due_date']));
 $generalInfo = array_filter($announcements, fn($a) => empty($a['due_date']));
@@ -85,17 +85,24 @@ include __DIR__ . '/../includes/header.php';
                         <div class="card-text mb-3 flex-grow-1"><?= nl2br(e($row['content'])) ?></div>
 
                         <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-end">
-                            <div class="text-danger fw-bold small">
-                                <i class="bi bi-calendar-check"></i>
+
+                            <div class="text-danger fw-bold small" style="line-height: 1.4;">
                                 <?php if ($row['end_date']): ?>
-                                    <?= date('M d', strtotime($row['due_date'])) ?> - <?= date('M d, Y', strtotime($row['end_date'])) ?>
+                                    <div>
+                                        <i class="bi bi-calendar-check me-1"></i><?= date('M d', strtotime($row['due_date'])) ?> - <?= date('M d, Y', strtotime($row['end_date'])) ?>
+                                    </div>
                                 <?php else: ?>
-                                    <?= date('D, M d', strtotime($row['due_date'])) ?>
+                                    <div>
+                                        <i class="bi bi-calendar-check me-1"></i><?= date('D, M d', strtotime($row['due_date'])) ?>
+                                    </div>
                                     <?php if (!empty($row['due_time'])): ?>
-                                        <br><i class="bi bi-alarm ms-1"></i> <?= date('h:i A', strtotime($row['due_time'])) ?>
+                                        <div>
+                                            <i class="bi bi-alarm me-1"></i><?= date('h:i A', strtotime($row['due_time'])) ?>
+                                        </div>
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </div>
+
                             <span class="small <?= $timeStatus['class'] ?> bg-white px-2 py-1 rounded border shadow-sm">
                                 <?= $timeStatus['label'] ?>
                             </span>
