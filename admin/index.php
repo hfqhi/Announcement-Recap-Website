@@ -10,15 +10,18 @@ $subjectFilter = $_GET['subject_id'] ?? '';
 $searchQuery = $_GET['search'] ?? '';
 
 $where = [];
-$params = [];
+$params = []; // Simple indexed array for positional parameters
 
 if ($subjectFilter) {
-    $where[] = "a.subject_id = :sub_id";
-    $params['sub_id'] = $subjectFilter;
+    $where[] = "a.subject_id = ?";
+    $params[] = $subjectFilter;
 }
+
 if ($searchQuery) {
-    $where[] = "(a.title LIKE :search OR a.content LIKE :search)";
-    $params['search'] = '%' . $searchQuery . '%';
+    $where[] = "(a.title LIKE ? OR a.content LIKE ?)";
+    $searchWildcard = '%' . $searchQuery . '%';
+    $params[] = $searchWildcard;
+    $params[] = $searchWildcard;
 }
 
 $whereSql = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";

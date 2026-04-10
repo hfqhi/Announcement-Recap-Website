@@ -56,18 +56,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['csr
     exit();
 }
 
-// --- FILTER LOGIC ADDED HERE ---
+// --- FILTER LOGIC ---
 $searchQuery = $_GET['search'] ?? '';
 
 $where = [];
 $params = [];
 
 if ($searchQuery) {
-    $where[] = "(code LIKE :search OR name LIKE :search OR professor LIKE :search)";
-    $params['search'] = "%$searchQuery%";
+    // Using positional parameters to satisfy strict driver rules
+    $where[] = "(code LIKE ? OR name LIKE ? OR professor LIKE ?)";
+
+    $searchWildcard = "%$searchQuery%";
+    $params[] = $searchWildcard;
+    $params[] = $searchWildcard;
+    $params[] = $searchWildcard;
 }
 
 $whereSql = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
+
+$sql = "SELECT * FROM tbl_subjects $whereSql ORDER BY code ASC";
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$allSubjects = $stmt->fetchAll();
 
 $sql = "SELECT * FROM tbl_subjects $whereSql ORDER BY code ASC";
 $stmt = $pdo->prepare($sql);
