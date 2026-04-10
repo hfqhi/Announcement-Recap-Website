@@ -130,7 +130,7 @@ include __DIR__ . '/../includes/header.php';
                                 <td><?= e($sub['professor']) ?></td>
                                 <td><?= e($sub['schedule']) ?></td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-primary" style="min-height:38px;" onclick='openSubjectModal("edit", <?= json_encode($sub) ?>)' title="Edit"><i class="bi bi-pencil-square"></i><span class="d-none d-sm-inline ms-1">Edit</span></button>
+                                    <button class="btn btn-sm btn-outline-primary" style="min-height:38px;" onclick='openSubjectModal("edit", <?= json_encode($sub) ?>)' title="Edit"><i class="bi bi-pencil-square"></i></button>
                                     <form method="POST" class="d-inline delete-form">
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                         <input type="hidden" name="action" value="archive">

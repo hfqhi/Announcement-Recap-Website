@@ -95,6 +95,7 @@ function getDaysLeft(string $dueDate): array
     $diff  = (int) $today->diff($due)->format('%r%a');
 
     if ($diff > 3)       return ['label' => "{$diff} days left",  'class' => 'text-success'];
+    if ($diff === 1)     return ['label' => 'Due tomorrow!',      'class' => 'text-danger fw-bold']; // <-- ADDED: Urgent Tomorrow Warning
     if ($diff > 0)       return ['label' => "{$diff} days left",  'class' => 'text-warning fw-bold'];
     if ($diff === 0)     return ['label' => 'Due today!',         'class' => 'text-danger fw-bold'];
     return               ['label' => abs($diff) . 'd overdue',    'class' => 'text-danger text-decoration-line-through'];

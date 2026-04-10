@@ -29,9 +29,10 @@ CREATE TABLE IF NOT EXISTS `tbl_admins` (
   UNIQUE KEY `username` (`username`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table db_announcement_system.tbl_admins: ~1 rows (approximately)
+-- Dumping data for table db_announcement_system.tbl_admins: ~2 rows (approximately)
 INSERT INTO `tbl_admins` (`id`, `username`, `password_hash`, `created_at`) VALUES
-	(1, 'john', '$2y$12$Q5UMZo2GeUlW3huiCgepOu4N0W9hu81MD12yGE0TKJoRuKHFyx3Ha', '2026-03-31 14:31:07');
+	(1, 'john', '$2y$12$Q5UMZo2GeUlW3huiCgepOu4N0W9hu81MD12yGE0TKJoRuKHFyx3Ha', '2026-03-31 14:31:07'),
+	(2, 'ekang', '$2y$12$sGnYIDzvrq3Uw3ILK/fo6Oa.x4/3iWVMKBrYfoB197O0tA75O.YSa', '2026-04-10 07:50:03');
 
 -- Dumping structure for table db_announcement_system.tbl_announcements
 CREATE TABLE IF NOT EXISTS `tbl_announcements` (
@@ -72,7 +73,7 @@ INSERT INTO `tbl_announcements` (`id`, `admin_id`, `subject_id`, `title`, `conte
 	(16, 1, 8, 'Study and master executing the:', 'Polka sa Nayon', NULL, NULL, NULL, 'active', '2026-03-31 16:48:35', '2026-04-01 03:57:34'),
 	(21, 1, 6, 'Seatwork 2', 'Coverage: Chapter 3', '2026-04-15', '10:00:00', NULL, 'active', '2026-04-01 03:52:43', '2026-04-08 03:39:05'),
 	(24, 1, 2, 'Quiz', 'Coverage: Lesson 7', '2026-04-06', '15:00:00', NULL, 'archived', '2026-04-04 13:26:34', '2026-04-09 10:12:44'),
-	(25, 1, 9, 'Holiday - Araw ng Kagitingan', 'Malamang walang pasok', '2026-04-09', NULL, NULL, 'active', '2026-04-06 06:42:14', '2026-04-06 06:42:14'),
+	(25, 1, 9, 'Holiday - Araw ng Kagitingan', 'Malamang walang pasok', '2026-04-09', NULL, NULL, 'archived', '2026-04-06 06:42:14', '2026-04-10 07:07:42'),
 	(26, 1, 4, 'Topics', '1. Fundamentals of DC circuits ✔️\r\n2. Diodes ✔️\r\n3. Introduction to transistors ✔️\r\n4. The transistor switch ✔️\r\n5. Fundamentals of AC circuits ✔️\r\n6. Filters ✔️\r\n7. Resonant circuits ✔️\r\n8. Transistor amplifiers\r\n9. Oscillators\r\n10. The transformer\r\n11. Power supply circuits', NULL, NULL, NULL, 'active', '2026-04-06 14:08:32', '2026-04-06 14:16:00'),
 	(27, 1, 7, 'Midterm Exam', 'For those who don\'t have books.', '2026-04-08', '14:00:00', NULL, 'archived', '2026-04-07 11:01:00', '2026-04-09 10:11:52'),
 	(28, 1, 9, 'FTF Modality', 'April 8–18', NULL, NULL, NULL, 'active', '2026-04-07 13:04:01', '2026-04-07 13:05:11');
@@ -94,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `tbl_audit_log` (
   CONSTRAINT `tbl_audit_log_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `tbl_admins` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=118 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table db_announcement_system.tbl_audit_log: ~117 rows (approximately)
+-- Dumping data for table db_announcement_system.tbl_audit_log: ~119 rows (approximately)
 INSERT INTO `tbl_audit_log` (`id`, `admin_id`, `announcement_id`, `deleted_record_id`, `action`, `old_value`, `new_value`, `changed_at`) VALUES
 	(1, 1, 1, NULL, 'created', NULL, '{"subject_id":"1","title":"Reporting","content":"Chapter 6","due_date":"2026-04-01"}', '2026-03-31 14:37:49'),
 	(2, 1, 1, NULL, 'updated', '{"id":1,"admin_id":1,"subject_id":1,"title":"Reporting","content":"Chapter 6","due_date":"2026-04-01","status":"active","created_at":"2026-03-31 22:37:49","updated_at":"2026-03-31 22:37:49"}', '{"subject_id":"1","title":"Reporting","content":"Chapter 6","due_date":"2026-03-31"}', '2026-03-31 14:38:27'),
@@ -212,7 +213,9 @@ INSERT INTO `tbl_audit_log` (`id`, `admin_id`, `announcement_id`, `deleted_recor
 	(114, 1, 27, NULL, 'archived', NULL, '{"id":27,"admin_id":1,"subject_id":7,"title":"Midterm Exam","content":"For those who don\'t have books.","due_date":"2026-04-08","due_time":"14:00:00","end_date":null,"status":"active","created_at":"2026-04-07 19:01:00","updated_at":"2026-04-07 19:01:00"}', '2026-04-09 10:11:52'),
 	(115, 1, 5, NULL, 'updated', '{"id":5,"admin_id":1,"subject_id":2,"title":"Midterm Exam","content":"Coverage: Chapter 1 to 7","due_date":"2026-04-13","due_time":"13:00:00","end_date":null,"status":"active","created_at":"2026-04-01 00:28:07","updated_at":"2026-04-08 11:41:34"}', '{"id":5,"admin_id":1,"subject_id":2,"title":"Midterm Exam","content":"Coverage: Lesson 1 to 5","due_date":"2026-04-13","due_time":"13:00:00","end_date":null,"status":"active","created_at":"2026-04-01 00:28:07","updated_at":"2026-04-09 18:12:18"}', '2026-04-09 10:12:18'),
 	(116, 1, 24, NULL, 'restored', NULL, '{"id":24,"admin_id":1,"subject_id":2,"title":"Quiz","content":"Coverage: Lesson 7","due_date":"2026-04-06","due_time":"15:00:00","end_date":null,"status":"archived","created_at":"2026-04-04 21:26:34","updated_at":"2026-04-06 18:20:53"}', '2026-04-09 10:12:25'),
-	(117, 1, 24, NULL, 'archived', NULL, '{"id":24,"admin_id":1,"subject_id":2,"title":"Quiz","content":"Coverage: Lesson 7","due_date":"2026-04-06","due_time":"15:00:00","end_date":null,"status":"active","created_at":"2026-04-04 21:26:34","updated_at":"2026-04-09 18:12:25"}', '2026-04-09 10:12:44');
+	(117, 1, 24, NULL, 'archived', NULL, '{"id":24,"admin_id":1,"subject_id":2,"title":"Quiz","content":"Coverage: Lesson 7","due_date":"2026-04-06","due_time":"15:00:00","end_date":null,"status":"active","created_at":"2026-04-04 21:26:34","updated_at":"2026-04-09 18:12:25"}', '2026-04-09 10:12:44'),
+	(118, 1, 25, NULL, 'archived', NULL, '{"id":25,"admin_id":1,"subject_id":9,"title":"Holiday - Araw ng Kagitingan","content":"Malamang walang pasok","due_date":"2026-04-09","due_time":null,"end_date":null,"status":"active","created_at":"2026-04-06 14:42:14","updated_at":"2026-04-06 14:42:14"}', '2026-04-10 07:07:42'),
+	(119, 1, NULL, NULL, 'created', NULL, '"New Admin Account Created: ekang"', '2026-04-10 07:50:03');
 
 -- Dumping structure for table db_announcement_system.tbl_subjects
 CREATE TABLE IF NOT EXISTS `tbl_subjects` (

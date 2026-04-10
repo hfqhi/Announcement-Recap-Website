@@ -52,7 +52,7 @@ include __DIR__ . '/../includes/header.php';
 ?>
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-end mb-4 mt-3 border-bottom pb-3 text-center text-md-start">
     <div class="mb-3 mb-md-0">
-        <h1 class="display-6 fw-bold text-uppercase mb-0" style="letter-spacing: 2px;">Announcements Recap</h1>
+        <h1 class="display-6 fw-bold text-uppercase mb-0" style="letter-spacing: 2px;">Announcement Recap</h1>
         <h5 class="text-danger font-monospace mt-1">
             <?= date('M d, Y (l)') ?> | <span id="liveClock"><?= date('h:i:s A') ?></span>
         </h5>
