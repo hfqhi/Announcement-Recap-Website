@@ -61,7 +61,7 @@ INSERT INTO `tbl_announcements` (`id`, `admin_id`, `subject_id`, `title`, `conte
 	(1, 1, 1, 'Reporting', 'Chapter 7', '2026-04-13', '07:00:00', NULL, 'active', '2026-03-31 14:37:49', '2026-04-06 06:45:20'),
 	(2, 1, 4, 'Midterm Review', 'Topics to be review: Transistors and etc.', '2026-04-14', '10:30:00', NULL, 'active', '2026-03-31 14:57:52', '2026-04-07 04:01:02'),
 	(4, 1, 1, 'Submission', 'Chapter 1', '2026-04-08', '10:00:00', NULL, 'archived', '2026-03-31 16:26:39', '2026-04-08 03:39:49'),
-	(5, 1, 2, 'Midterm Exam', 'Coverage: Lesson 1 to 5', '2026-04-13', '13:00:00', NULL, 'active', '2026-03-31 16:28:07', '2026-04-09 10:12:18'),
+	(5, 1, 2, 'Midterm Exam', 'Coverage: Lesson 1 to 5', '2026-04-13', '13:00:00', NULL, 'active', '2026-03-31 16:28:07', '2026-04-10 09:24:51'),
 	(6, 1, 3, 'Quiz 1', 'Coverage: \r\n1. Simple Interest\r\n2. Compound Interest\r\n3. Effective Rate of Interest\r\n4. Equation of Value\r\n5. Discrete Payment\r\n6. Continuous Compounding Interest\r\n7. Banker s Discount', '2026-04-13', '17:00:00', NULL, 'active', '2026-03-31 16:31:32', '2026-04-06 10:21:18'),
 	(8, 1, 5, 'Presentation', 'Topic 4', '2026-04-14', '14:30:00', NULL, 'active', '2026-03-31 16:34:48', '2026-04-07 04:01:16'),
 	(9, 1, 6, 'Discussion', 'Final topic.', '2026-04-15', '10:00:00', NULL, 'active', '2026-03-31 16:35:33', '2026-04-08 03:39:36'),
@@ -72,7 +72,7 @@ INSERT INTO `tbl_announcements` (`id`, `admin_id`, `subject_id`, `title`, `conte
 	(15, 1, 9, 'Books:', 'SCIETS - 320₱\r\nCONTWO - 300₱\r\nRIZAL - 360₱\r\nPEHEF2/INDAYOG - 350₱', NULL, NULL, NULL, 'active', '2026-03-31 16:48:12', '2026-03-31 16:48:12'),
 	(16, 1, 8, 'Study and master executing the:', 'Polka sa Nayon', NULL, NULL, NULL, 'active', '2026-03-31 16:48:35', '2026-04-01 03:57:34'),
 	(21, 1, 6, 'Seatwork 2', 'Coverage: Chapter 3', '2026-04-15', '10:00:00', NULL, 'active', '2026-04-01 03:52:43', '2026-04-08 03:39:05'),
-	(24, 1, 2, 'Quiz', 'Coverage: Lesson 7', '2026-04-06', '15:00:00', NULL, 'archived', '2026-04-04 13:26:34', '2026-04-09 10:12:44'),
+	(24, 1, 2, 'Quiz', 'Coverage: Lesson 7', '2026-04-06', '15:00:00', NULL, 'archived', '2026-04-04 13:26:34', '2026-04-10 09:22:44'),
 	(25, 1, 9, 'Holiday - Araw ng Kagitingan', 'Malamang walang pasok', '2026-04-09', NULL, NULL, 'archived', '2026-04-06 06:42:14', '2026-04-10 07:07:42'),
 	(26, 1, 4, 'Topics', '1. Fundamentals of DC circuits ✔️\r\n2. Diodes ✔️\r\n3. Introduction to transistors ✔️\r\n4. The transistor switch ✔️\r\n5. Fundamentals of AC circuits ✔️\r\n6. Filters ✔️\r\n7. Resonant circuits ✔️\r\n8. Transistor amplifiers\r\n9. Oscillators\r\n10. The transformer\r\n11. Power supply circuits', NULL, NULL, NULL, 'active', '2026-04-06 14:08:32', '2026-04-06 14:16:00'),
 	(27, 1, 7, 'Midterm Exam', 'For those who don\'t have books.', '2026-04-08', '14:00:00', NULL, 'archived', '2026-04-07 11:01:00', '2026-04-09 10:11:52'),
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `tbl_audit_log` (
   CONSTRAINT `tbl_audit_log_ibfk_1` FOREIGN KEY (`admin_id`) REFERENCES `tbl_admins` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=118 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table db_announcement_system.tbl_audit_log: ~119 rows (approximately)
+-- Dumping data for table db_announcement_system.tbl_audit_log: ~123 rows (approximately)
 INSERT INTO `tbl_audit_log` (`id`, `admin_id`, `announcement_id`, `deleted_record_id`, `action`, `old_value`, `new_value`, `changed_at`) VALUES
 	(1, 1, 1, NULL, 'created', NULL, '{"subject_id":"1","title":"Reporting","content":"Chapter 6","due_date":"2026-04-01"}', '2026-03-31 14:37:49'),
 	(2, 1, 1, NULL, 'updated', '{"id":1,"admin_id":1,"subject_id":1,"title":"Reporting","content":"Chapter 6","due_date":"2026-04-01","status":"active","created_at":"2026-03-31 22:37:49","updated_at":"2026-03-31 22:37:49"}', '{"subject_id":"1","title":"Reporting","content":"Chapter 6","due_date":"2026-03-31"}', '2026-03-31 14:38:27'),
@@ -215,7 +215,11 @@ INSERT INTO `tbl_audit_log` (`id`, `admin_id`, `announcement_id`, `deleted_recor
 	(116, 1, 24, NULL, 'restored', NULL, '{"id":24,"admin_id":1,"subject_id":2,"title":"Quiz","content":"Coverage: Lesson 7","due_date":"2026-04-06","due_time":"15:00:00","end_date":null,"status":"archived","created_at":"2026-04-04 21:26:34","updated_at":"2026-04-06 18:20:53"}', '2026-04-09 10:12:25'),
 	(117, 1, 24, NULL, 'archived', NULL, '{"id":24,"admin_id":1,"subject_id":2,"title":"Quiz","content":"Coverage: Lesson 7","due_date":"2026-04-06","due_time":"15:00:00","end_date":null,"status":"active","created_at":"2026-04-04 21:26:34","updated_at":"2026-04-09 18:12:25"}', '2026-04-09 10:12:44'),
 	(118, 1, 25, NULL, 'archived', NULL, '{"id":25,"admin_id":1,"subject_id":9,"title":"Holiday - Araw ng Kagitingan","content":"Malamang walang pasok","due_date":"2026-04-09","due_time":null,"end_date":null,"status":"active","created_at":"2026-04-06 14:42:14","updated_at":"2026-04-06 14:42:14"}', '2026-04-10 07:07:42'),
-	(119, 1, NULL, NULL, 'created', NULL, '"New Admin Account Created: ekang"', '2026-04-10 07:50:03');
+	(119, 1, NULL, NULL, 'created', NULL, '"New Admin Account Created: ekang"', '2026-04-10 07:50:03'),
+	(120, 2, 24, NULL, 'restored', NULL, '{"id":24,"admin_id":1,"subject_id":2,"title":"Quiz","content":"Coverage: Lesson 7","due_date":"2026-04-06","due_time":"15:00:00","end_date":null,"status":"archived","created_at":"2026-04-04 21:26:34","updated_at":"2026-04-09 18:12:44"}', '2026-04-10 09:22:32'),
+	(121, 2, 24, NULL, 'archived', NULL, '{"id":24,"admin_id":1,"subject_id":2,"title":"Quiz","content":"Coverage: Lesson 7","due_date":"2026-04-06","due_time":"15:00:00","end_date":null,"status":"active","created_at":"2026-04-04 21:26:34","updated_at":"2026-04-10 17:22:32"}', '2026-04-10 09:22:44'),
+	(122, 2, 5, NULL, 'updated', '{"id":5,"admin_id":1,"subject_id":2,"title":"Midterm Exam","content":"Coverage: Lesson 1 to 5","due_date":"2026-04-13","due_time":"13:00:00","end_date":null,"status":"active","created_at":"2026-04-01 00:28:07","updated_at":"2026-04-09 18:12:18"}', '{"id":5,"admin_id":1,"subject_id":2,"title":"Midterm Exam","content":"Coverage: Lesson 1 to 5","due_date":"2026-04-11","due_time":"13:00:00","end_date":null,"status":"active","created_at":"2026-04-01 00:28:07","updated_at":"2026-04-10 17:24:35"}', '2026-04-10 09:24:35'),
+	(123, 2, 5, NULL, 'updated', '{"id":5,"admin_id":1,"subject_id":2,"title":"Midterm Exam","content":"Coverage: Lesson 1 to 5","due_date":"2026-04-11","due_time":"13:00:00","end_date":null,"status":"active","created_at":"2026-04-01 00:28:07","updated_at":"2026-04-10 17:24:35"}', '{"id":5,"admin_id":1,"subject_id":2,"title":"Midterm Exam","content":"Coverage: Lesson 1 to 5","due_date":"2026-04-13","due_time":"13:00:00","end_date":null,"status":"active","created_at":"2026-04-01 00:28:07","updated_at":"2026-04-10 17:24:51"}', '2026-04-10 09:24:51');
 
 -- Dumping structure for table db_announcement_system.tbl_subjects
 CREATE TABLE IF NOT EXISTS `tbl_subjects` (
