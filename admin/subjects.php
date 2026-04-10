@@ -56,15 +56,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['csr
     exit();
 }
 
-$allSubjects = $pdo->query("SELECT * FROM tbl_subjects ORDER BY code ASC")->fetchAll();
+// --- FILTER LOGIC ADDED HERE ---
+$searchQuery = $_GET['search'] ?? '';
+
+$where = [];
+$params = [];
+
+if ($searchQuery) {
+    $where[] = "(code LIKE :search OR name LIKE :search OR professor LIKE :search)";
+    $params['search'] = "%$searchQuery%";
+}
+
+$whereSql = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
+
+$sql = "SELECT * FROM tbl_subjects $whereSql ORDER BY code ASC";
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$allSubjects = $stmt->fetchAll();
+
 $active = array_filter($allSubjects, fn($s) => $s['status'] === 'active');
 $archived = array_filter($allSubjects, fn($s) => $s['status'] === 'archived');
 
 include __DIR__ . '/../includes/header.php';
 ?>
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Manage Subjects</h2>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+    <h2 class="mb-3 mb-md-0">Manage Subjects</h2>
     <button class="btn btn-primary" onclick="openSubjectModal('add')"><i class="bi bi-plus-lg"></i> Add Subject</button>
+</div>
+
+<div class="card shadow-sm mb-4 border-0 bg-light">
+    <div class="card-body py-3">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-md-6">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" name="search" class="form-control" placeholder="Search Code, Subject Name, or Professor..." value="<?= e($searchQuery) ?>">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-dark btn-sm w-100">Filter</button>
+            </div>
+            <div class="col-md-1">
+                <a href="subjects.php" class="btn btn-outline-secondary btn-sm w-100" title="Clear Filters"><i class="bi bi-x-lg"></i></a>
+            </div>
+        </form>
+    </div>
 </div>
 
 <ul class="nav nav-tabs mb-3" role="tablist">
