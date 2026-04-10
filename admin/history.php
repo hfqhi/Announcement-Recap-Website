@@ -6,7 +6,8 @@ require_once __DIR__ . '/../includes/helpers.php';
 $pageTitle = "Audit Log";
 
 // --- Filters & Pagination ---
-$period = $_GET['period'] ?? 'all';
+// FIX: Changed default fallback from 'all' to 'today'
+$period = $_GET['period'] ?? 'today';
 $actionFilter = $_GET['action'] ?? '';
 $subjectFilter = $_GET['subject_id'] ?? '';
 $page = max(1, (int)($_GET['page'] ?? 1));
