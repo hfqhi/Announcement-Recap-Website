@@ -29,6 +29,8 @@ $isAdmin = isset($_SESSION['admin_id']);
                         <li class="nav-item"><a class="nav-link" href="/admin/index.php">Announcements</a></li>
                         <li class="nav-item"><a class="nav-link" href="/admin/subjects.php">Subjects</a></li>
                         <li class="nav-item"><a class="nav-link" href="/admin/history.php">Audit Log</a></li>
+                        <!-- Off the comment below to create new admin -->
+                        <!--<li class="nav-item ms-lg-3"><a class="nav-link text-primary fw-bold" href="/admin/register.php">Add Admin</a></li>-->
                         <li class="nav-item ms-lg-3"><a class="nav-link text-danger fw-bold" href="/auth/logout.php">Logout</a></li>
                     </ul>
                 </div>
