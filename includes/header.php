@@ -1,6 +1,11 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
 $isAdmin = isset($_SESSION['admin_id']);
+
+// Trigger auto-archive engine silently if the DB connection is active
+if (isset($pdo) && function_exists('autoArchiveOverdue')) {
+    autoArchiveOverdue($pdo);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -100,3 +100,23 @@ function getDaysLeft(string $dueDate): array
     if ($diff === 0)     return ['label' => 'Due today!',         'class' => 'text-danger fw-bold'];
     return               ['label' => abs($diff) . 'd overdue',    'class' => 'text-danger text-decoration-line-through'];
 }
+
+// Auto-Archive Engine (Lazy Execution)
+function autoArchiveOverdue(PDO $pdo): void
+{
+    // Fetch today's date in Manila Time
+    $today = (new DateTime('today', new DateTimeZone('Asia/Manila')))->format('Y-m-d');
+
+    // Safely update items where the end_date (or due_date if no end_date exists) has passed
+    $sql = "UPDATE tbl_announcements
+            SET status = 'archived'
+            WHERE status = 'active'
+            AND due_date IS NOT NULL
+            AND (
+                (end_date IS NOT NULL AND end_date < ?) OR
+                (end_date IS NULL AND due_date < ?)
+            )";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$today, $today]);
+}
