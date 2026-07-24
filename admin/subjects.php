@@ -13,11 +13,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $code = trim($_POST['code']);
     $name = trim($_POST['name']);
     $prof = trim($_POST['professor']);
+    $schedule = trim($_POST['schedule']); // NEW: Schedule variable
     $color = $_POST['color_theme'];
 
     if ($action === 'add') {
-        $stmt = $pdo->prepare("INSERT INTO tbl_subjects (code, name, professor, color_theme) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$code, $name, $prof, $color]);
+        $stmt = $pdo->prepare("INSERT INTO tbl_subjects (code, name, professor, schedule, color_theme) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$code, $name, $prof, $schedule, $color]);
         logAction($pdo, $_SESSION['admin_id'], $pdo->lastInsertId(), 'created', null, "Added subject: $code");
         setFlash('success', 'Subject added successfully!');
     } elseif ($action === 'edit') {
@@ -29,8 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $oldState = json_encode($stmt->fetch(PDO::FETCH_ASSOC));
 
         // Update record
-        $update = $pdo->prepare("UPDATE tbl_subjects SET code = ?, name = ?, professor = ?, color_theme = ? WHERE id = ?");
-        $update->execute([$code, $name, $prof, $color, $id]);
+        $update = $pdo->prepare("UPDATE tbl_subjects SET code = ?, name = ?, professor = ?, schedule = ?, color_theme = ? WHERE id = ?");
+        $update->execute([$code, $name, $prof, $schedule, $color, $id]);
 
         // Get new state for audit log
         $stmt->execute([$id]);
@@ -50,8 +51,10 @@ $where = [];
 $params = [];
 
 if ($searchQuery) {
-    $where[] = "(code LIKE ? OR name LIKE ? OR professor LIKE ?)";
+    // NEW: Included schedule in the search parameters
+    $where[] = "(code LIKE ? OR name LIKE ? OR professor LIKE ? OR schedule LIKE ?)";
     $searchWildcard = "%$searchQuery%";
+    $params[] = $searchWildcard;
     $params[] = $searchWildcard;
     $params[] = $searchWildcard;
     $params[] = $searchWildcard;
@@ -70,7 +73,6 @@ include __DIR__ . '/../includes/header.php';
 ?>
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
     <h2 class="mb-3 mb-md-0">Manage Subjects</h2>
-    <!-- FIX: Using native Bootstrap attributes to open the modal -->
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#subjectModal" onclick="prepareModal('add')">
         <i class="bi bi-plus-lg"></i> Add Subject
     </button>
@@ -83,7 +85,7 @@ include __DIR__ . '/../includes/header.php';
             <div class="col-md-6">
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                    <input type="text" name="search" class="form-control" placeholder="Search Code, Subject Name, or Professor..." value="<?= e($searchQuery) ?>">
+                    <input type="text" name="search" class="form-control" placeholder="Search Code, Name, Professor, or Schedule..." value="<?= e($searchQuery) ?>">
                 </div>
             </div>
             <div class="col-md-2">
@@ -112,13 +114,14 @@ include __DIR__ . '/../includes/header.php';
                             <th>Code</th>
                             <th>Name</th>
                             <th>Professor</th>
+                            <th>Schedule</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($active)): ?>
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-4">No active subjects found.</td>
+                                <td colspan="5" class="text-center text-muted py-4">No active subjects found.</td>
                             </tr>
                         <?php endif; ?>
                         <?php foreach ($active as $row): ?>
@@ -126,8 +129,8 @@ include __DIR__ . '/../includes/header.php';
                                 <td><span class="badge <?= e($row['color_theme']) ?>"><?= e($row['code']) ?></span></td>
                                 <td><?= e($row['name']) ?></td>
                                 <td><?= e($row['professor']) ?></td>
+                                <td><small class="text-muted"><i class="bi bi-clock"></i> <?= e($row['schedule'] ?? 'TBA') ?></small></td>
                                 <td>
-                                    <!-- FIX: Safely escaping the JSON data and using native modal triggers -->
                                     <button class="btn btn-sm btn-outline-primary" title="Edit" data-bs-toggle="modal" data-bs-target="#subjectModal" onclick="prepareModal('edit', <?= htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8') ?>)">
                                         <i class="bi bi-pencil-square"></i>
                                     </button>
@@ -154,19 +157,21 @@ include __DIR__ . '/../includes/header.php';
                         <tr>
                             <th>Code</th>
                             <th>Name</th>
+                            <th>Schedule</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($archived)): ?>
                             <tr>
-                                <td colspan="3" class="text-center text-muted py-4">No archived subjects found.</td>
+                                <td colspan="4" class="text-center text-muted py-4">No archived subjects found.</td>
                             </tr>
                         <?php endif; ?>
                         <?php foreach ($archived as $row): ?>
                             <tr class="table-secondary">
                                 <td><span class="badge <?= e($row['color_theme']) ?>"><?= e($row['code']) ?></span></td>
                                 <td><del><?= e($row['name']) ?></del></td>
+                                <td><small class="text-muted"><del><?= e($row['schedule'] ?? 'TBA') ?></del></small></td>
                                 <td>
                                     <form action="delete.php" method="POST" class="d-inline">
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -204,7 +209,7 @@ include __DIR__ . '/../includes/header.php';
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Subject Code</label>
-                        <input type="text" name="code" id="modalCode" class="form-control" placeholder="e.g. CPE2B" required>
+                        <input type="text" name="code" id="modalCode" class="form-control" placeholder="e.g. CPE3B" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Subject Name</label>
@@ -213,6 +218,11 @@ include __DIR__ . '/../includes/header.php';
                     <div class="mb-3">
                         <label class="form-label fw-bold">Professor</label>
                         <input type="text" name="professor" id="modalProf" class="form-control" placeholder="e.g. Dr. Smith" required>
+                    </div>
+                    <!-- NEW: Schedule Input Field -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Time Schedule</label>
+                        <input type="text" name="schedule" id="modalSchedule" class="form-control" placeholder="e.g. M 10:00 AM - 1:00 PM">
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Color Theme</label>
@@ -236,7 +246,6 @@ include __DIR__ . '/../includes/header.php';
 </div>
 
 <script>
-    // FIX: Separated the data prep from the modal opening mechanism
     function prepareModal(mode, data = null) {
         const title = document.getElementById('subjectModalTitle');
         const submitBtn = document.getElementById('modalSubmitBtn');
@@ -251,6 +260,7 @@ include __DIR__ . '/../includes/header.php';
             document.getElementById('modalCode').value = '';
             document.getElementById('modalName').value = '';
             document.getElementById('modalProf').value = '';
+            document.getElementById('modalSchedule').value = ''; // Reset Schedule
             document.getElementById('modalColor').value = 'bg-primary text-white';
         } else if (mode === 'edit' && data) {
             title.innerHTML = '<i class="bi bi-pencil-square"></i> Edit Subject';
@@ -261,6 +271,7 @@ include __DIR__ . '/../includes/header.php';
             document.getElementById('modalCode').value = data.code;
             document.getElementById('modalName').value = data.name;
             document.getElementById('modalProf').value = data.professor;
+            document.getElementById('modalSchedule').value = data.schedule || ''; // Populate Schedule
             document.getElementById('modalColor').value = data.color_theme;
         }
     }
