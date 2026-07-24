@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $code = trim($_POST['code']);
     $name = trim($_POST['name']);
     $prof = trim($_POST['professor']);
-    $schedule = trim($_POST['schedule']); // NEW: Schedule variable
+    $schedule = trim($_POST['schedule']);
     $color = $_POST['color_theme'];
 
     if ($action === 'add') {
@@ -51,7 +51,6 @@ $where = [];
 $params = [];
 
 if ($searchQuery) {
-    // NEW: Included schedule in the search parameters
     $where[] = "(code LIKE ? OR name LIKE ? OR professor LIKE ? OR schedule LIKE ?)";
     $searchWildcard = "%$searchQuery%";
     $params[] = $searchWildcard;
@@ -219,20 +218,17 @@ include __DIR__ . '/../includes/header.php';
                         <label class="form-label fw-bold">Professor</label>
                         <input type="text" name="professor" id="modalProf" class="form-control" placeholder="e.g. Dr. Smith" required>
                     </div>
-                    <!-- NEW: Schedule Input Field -->
                     <div class="mb-3">
                         <label class="form-label fw-bold">Time Schedule</label>
                         <input type="text" name="schedule" id="modalSchedule" class="form-control" placeholder="e.g. M 10:00 AM - 1:00 PM">
                     </div>
+                    <!-- FIX: Dynamically populating the Color Theme dropdown from config -->
                     <div class="mb-3">
                         <label class="form-label fw-bold">Color Theme</label>
                         <select name="color_theme" id="modalColor" class="form-select" required>
-                            <option value="bg-primary text-white">Blue</option>
-                            <option value="bg-success text-white">Green</option>
-                            <option value="bg-danger text-white">Red</option>
-                            <option value="bg-warning text-dark">Yellow</option>
-                            <option value="bg-info text-dark">Cyan</option>
-                            <option value="bg-dark text-white">Black</option>
+                            <?php foreach (COLOR_THEMES as $key => $theme): ?>
+                                <option value="<?= e($key) ?>"><?= e($theme['name']) ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                 </div>
@@ -260,8 +256,9 @@ include __DIR__ . '/../includes/header.php';
             document.getElementById('modalCode').value = '';
             document.getElementById('modalName').value = '';
             document.getElementById('modalProf').value = '';
-            document.getElementById('modalSchedule').value = ''; // Reset Schedule
-            document.getElementById('modalColor').value = 'bg-primary text-white';
+            document.getElementById('modalSchedule').value = '';
+            // FIX: Default to the first key in your new config array
+            document.getElementById('modalColor').value = 'bg-sciets';
         } else if (mode === 'edit' && data) {
             title.innerHTML = '<i class="bi bi-pencil-square"></i> Edit Subject';
             submitBtn.textContent = 'Update Subject';
@@ -271,7 +268,7 @@ include __DIR__ . '/../includes/header.php';
             document.getElementById('modalCode').value = data.code;
             document.getElementById('modalName').value = data.name;
             document.getElementById('modalProf').value = data.professor;
-            document.getElementById('modalSchedule').value = data.schedule || ''; // Populate Schedule
+            document.getElementById('modalSchedule').value = data.schedule || '';
             document.getElementById('modalColor').value = data.color_theme;
         }
     }
