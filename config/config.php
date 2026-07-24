@@ -21,9 +21,9 @@ define('DB_USER', 'cpe_user');
 define('DB_PASS', 'PortalPass123!');
 define('DB_NAME', 'db_announcement_system');
 
-define('APP_NAME', 'CPE2B Announcements');
+define('APP_NAME', 'CPE3B Announcements');
 define('BASE_URL', '');
-define('SEMESTER_START', '2026-02-09');
+define('SEMESTER_START', '2026-08-10');
 date_default_timezone_set('Asia/Manila');
 
 const COLOR_THEMES = [
