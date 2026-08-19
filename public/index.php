@@ -112,6 +112,15 @@ include __DIR__ . '/../includes/header.php';
                         <h5 class="card-title fw-bold text-dark"><?= e($row['title']) ?></h5>
                         <div class="card-text mb-3 flex-grow-1"><?= nl2br(e($row['content'])) ?></div>
 
+                        <!-- ADDED: Attachment Button -->
+                        <?php if (!empty($row['file_path'])): ?>
+                            <div class="mb-3 mt-auto">
+                                <a href="<?= e($row['file_path']) ?>" target="_blank" class="btn btn-sm btn-outline-secondary w-100" style="border-radius: 6px;">
+                                    <i class="bi bi-paperclip"></i> View Attachment
+                                </a>
+                            </div>
+                        <?php endif; ?>
+
                         <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-end">
 
                             <div class="text-danger fw-bold small" style="line-height: 1.4;">
@@ -152,6 +161,15 @@ include __DIR__ . '/../includes/header.php';
                     <div class="card-body pt-3 bg-light rounded-bottom d-flex flex-column">
                         <h5 class="card-title fw-bold text-dark"><?= e($row['title']) ?></h5>
                         <div class="card-text mb-3 flex-grow-1"><?= nl2br(e($row['content'])) ?></div>
+
+                        <!-- ADDED: Attachment Button -->
+                        <?php if (!empty($row['file_path'])): ?>
+                            <div class="mb-3 mt-auto">
+                                <a href="<?= e($row['file_path']) ?>" target="_blank" class="btn btn-sm btn-outline-secondary w-100" style="border-radius: 6px;">
+                                    <i class="bi bi-paperclip"></i> View Attachment
+                                </a>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
