@@ -11,11 +11,39 @@ $announcements = getActiveAnnouncements($pdo);
 $upcomingDeadlines = array_filter($announcements, fn($a) => !empty($a['due_date']));
 $generalInfo = array_filter($announcements, fn($a) => empty($a['due_date']));
 
-// Calendar & Semester Engine Logic
-$month = date('m');
-$year = date('Y');
-$daysInMonth = date('t', mktime(0, 0, 0, $month, 1, $year));
-$firstDayOfWeek = date('w', mktime(0, 0, 0, $month, 1, $year));
+// --- DYNAMIC CALENDAR ROUTING ---
+$reqMonth = isset($_GET['m']) ? (int)$_GET['m'] : (int)date('m');
+$reqYear = isset($_GET['y']) ? (int)$_GET['y'] : (int)date('Y');
+
+// Security check: Ensure dates are valid, otherwise default to current server date
+if ($reqMonth < 1 || $reqMonth > 12) $reqMonth = (int)date('m');
+if ($reqYear < 2000 || $reqYear > 2100) $reqYear = (int)date('Y');
+
+// Calculate previous and next months for the buttons
+$prevMonth = $reqMonth - 1;
+$prevYear = $reqYear;
+if ($prevMonth == 0) {
+    $prevMonth = 12;
+    $prevYear--;
+}
+
+$nextMonth = $reqMonth + 1;
+$nextYear = $reqYear;
+if ($nextMonth == 13) {
+    $nextMonth = 1;
+    $nextYear++;
+}
+
+// Format the month name (e.g., "August") for the header
+$dateObj = DateTime::createFromFormat('!m', $reqMonth);
+$monthName = $dateObj->format('F');
+
+// Calendar & Semester Engine Logic (Updated to use dynamic values)
+$month = str_pad($reqMonth, 2, '0', STR_PAD_LEFT);
+$year = $reqYear;
+$daysInMonth = date('t', mktime(0, 0, 0, $reqMonth, 1, $reqYear));
+$firstDayOfWeek = date('w', mktime(0, 0, 0, $reqMonth, 1, $reqYear));
+// ---------------------------------
 
 $semStart = new DateTime(SEMESTER_START);
 $semStartSunday = clone $semStart;
@@ -134,8 +162,19 @@ include __DIR__ . '/../includes/header.php';
 <div id="view-calendar" style="display: none;">
     <div class="row">
         <div class="col-lg-9">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-2">
-                <h3 class="mb-0 font-monospace text-center text-md-start"><?= date('F Y') ?></h3>
+            <!-- DYNAMIC CALENDAR HEADER -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center gap-3">
+                    <a href="?m=<?= $prevMonth ?>&y=<?= $prevYear ?>" class="btn btn-outline-dark btn-sm shadow-sm" title="Previous Month">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+
+                    <h3 class="mb-0 font-monospace text-center" style="min-width: 200px;"><?= $monthName ?> <?= $reqYear ?></h3>
+
+                    <a href="?m=<?= $nextMonth ?>&y=<?= $nextYear ?>" class="btn btn-outline-dark btn-sm shadow-sm" title="Next Month">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
                 <small class="text-muted fst-italic text-center text-md-end mt-2 mt-md-0"><i class="bi bi-info-circle"></i> Semester Week 1 started on <?= date('M d, Y', strtotime(SEMESTER_START)) ?></small>
             </div>
 
