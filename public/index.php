@@ -112,12 +112,22 @@ include __DIR__ . '/../includes/header.php';
                         <h5 class="card-title fw-bold text-dark"><?= e($row['title']) ?></h5>
                         <div class="card-text mb-3 flex-grow-1"><?= nl2br(e($row['content'])) ?></div>
 
-                        <!-- ADDED: Attachment Button -->
+                        <!-- SMART ATTACHMENT RENDERER -->
                         <?php if (!empty($row['file_path'])): ?>
-                            <div class="mb-3 mt-auto">
-                                <a href="<?= e($row['file_path']) ?>" target="_blank" class="btn btn-sm btn-outline-secondary w-100" style="border-radius: 6px;">
-                                    <i class="bi bi-paperclip"></i> View Attachment
-                                </a>
+                            <?php
+                            $ext = strtolower(pathinfo($row['file_path'], PATHINFO_EXTENSION));
+                            $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                            ?>
+                            <div class="mb-3 mt-auto text-center">
+                                <?php if ($isImage): ?>
+                                    <a href="<?= e($row['file_path']) ?>" target="_blank">
+                                        <img src="<?= e($row['file_path']) ?>" class="img-fluid rounded border shadow-sm w-100" alt="Attachment" style="max-height: 400px; object-fit: contain; background-color: #f8f9fa;">
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?= e($row['file_path']) ?>" target="_blank" class="btn btn-sm btn-outline-secondary w-100" style="border-radius: 6px;">
+                                        <i class="bi bi-paperclip"></i> View Attached Document (.<?= e($ext) ?>)
+                                    </a>
+                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
 
