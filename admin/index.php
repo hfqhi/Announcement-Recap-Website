@@ -18,10 +18,12 @@ if ($subjectFilter) {
 }
 
 if ($searchQuery) {
-    $where[] = "(a.title LIKE ? OR a.content LIKE ?)";
+    $where[] = "(a.title LIKE ? OR a.content LIKE ? OR s.code LIKE ? OR s.name LIKE ?)";
     $searchWildcard = '%' . $searchQuery . '%';
-    $params[] = $searchWildcard;
-    $params[] = $searchWildcard;
+    $params[] = $searchWildcard; // for title
+    $params[] = $searchWildcard; // for content
+    $params[] = $searchWildcard; // for subject code
+    $params[] = $searchWildcard; // for subject name
 }
 
 $whereSql = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";

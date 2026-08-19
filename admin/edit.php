@@ -19,14 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // --- FILE UPLOAD LOGIC ---
     $file_path = $item['file_path']; // Keep existing by default
 
-    // ADDED: Check if the user wants to remove the attachment entirely
+    // 1. Check if admin checked the "Remove attachment" box
     if (isset($_POST['remove_attachment']) && $_POST['remove_attachment'] === '1') {
         if (!empty($file_path) && file_exists(dirname(__DIR__) . '/' . $file_path)) {
             unlink(dirname(__DIR__) . '/' . $file_path);
         }
-        $file_path = null; // Clear from database
+        $file_path = null; // Clear it for the database update
     }
-    // Otherwise, process a new file upload if provided
+    // 2. Otherwise, process a new file upload
     elseif (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
         $uploadDir = dirname(__DIR__) . '/assets/uploads/';
         if (!is_dir($uploadDir)) {
@@ -75,16 +75,15 @@ include __DIR__ . '/../includes/header.php';
                         <label class="form-label fw-bold"><i class="bi bi-paperclip"></i> Attachment (Optional)</label>
                         <?php if (!empty($item['file_path'])): ?>
                             <div class="mb-3 p-3 bg-light border rounded">
-                                <a href="../<?= e($item['file_path']) ?>" target="_blank" class="btn btn-sm btn-outline-info mb-2"><i class="bi bi-eye"></i> View Current File</a>
+                                <a href="../<?= e($item['file_path']) ?>" target="_blank" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i> View Current File</a>
 
-                                <!-- ADDED: Remove Attachment Checkbox -->
-                                <div class="form-check">
-                                    <input class="form-check-input border-danger" type="checkbox" name="remove_attachment" value="1" id="removeAttachment">
-                                    <label class="form-check-label text-danger fw-bold" for="removeAttachment">
-                                        <i class="bi bi-trash"></i> Permanently remove this attachment
+                                <div class="form-check mt-3">
+                                    <input class="form-check-input" type="checkbox" name="remove_attachment" value="1" id="removeAttachment">
+                                    <label class="form-check-label text-secondary" for="removeAttachment">
+                                        <i class="bi bi-trash text-danger"></i> Remove this attachment
                                     </label>
                                 </div>
-                                <small class="text-muted d-block mt-2">Note: Uploading a new file below will automatically replace the old one without checking the box.</small>
+                                <small class="text-muted d-block mt-2">Uploading a new file below will automatically replace the old one.</small>
                             </div>
                         <?php endif; ?>
                         <input type="file" name="attachment" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
