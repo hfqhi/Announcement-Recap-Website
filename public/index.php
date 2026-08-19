@@ -98,7 +98,7 @@ include __DIR__ . '/../includes/header.php';
         <?php foreach ($upcomingDeadlines as $row): ?>
             <?php $timeStatus = getDaysLeft($row['due_date']); ?>
             <div class="col">
-                <div class="card h-100 shadow-sm border-0 announcement-card">
+                <div class="card h-100 shadow-sm border-0 announcement-card opacity-75">
                     <div class="card-header border-0 text-center p-0">
                         <span class='badge w-100 py-2 fs-5 <?= e($row['color_theme']) ?>' style="border-radius: 6px 6px 0 0; letter-spacing: 2px;">
                             <?= e($row['code']) ?>
@@ -172,6 +172,10 @@ include __DIR__ . '/../includes/header.php';
                         <span class='badge w-100 py-2 fs-5 <?= e($row['color_theme']) ?>' style="border-radius: 6px 6px 0 0; letter-spacing: 2px;"><?= e($row['code']) ?></span>
                     </div>
                     <div class="card-body pt-3 bg-light rounded-bottom d-flex flex-column">
+                        <div class="text-muted small mb-2 border-bottom pb-2">
+                            <i class="bi bi-person-video3"></i> <?= e($row['professor']) ?> <br>
+                            <i class="bi bi-clock"></i> <?= e($row['schedule']) ?>
+                        </div>
                         <h5 class="card-title fw-bold text-dark"><?= e($row['title']) ?></h5>
                         <div class="card-text mb-3 flex-grow-1"><?= nl2br(e($row['content'])) ?></div>
 
