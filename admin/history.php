@@ -65,7 +65,7 @@ $stmt->execute($params);
 $logs = $stmt->fetchAll();
 
 // Fetch Subjects for the Dropdown Filter
-$subjects = $pdo->query("SELECT id, code FROM tbl_subjects ORDER BY code ASC")->fetchAll();
+$subjects = $pdo->query("SELECT id, code FROM tbl_subjects WHERE status = 'active' ORDER BY code ASC")->fetchAll();
 
 // --- UI Helpers ---
 $actionColors = [

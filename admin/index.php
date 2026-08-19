@@ -42,7 +42,7 @@ $active = array_filter($allAnnouncements, fn($a) => $a['status'] === 'active');
 $archived = array_filter($allAnnouncements, fn($a) => $a['status'] === 'archived');
 
 // 4. Fetch Subjects for the dropdown filter
-$subjects = $pdo->query("SELECT id, code FROM tbl_subjects ORDER BY code ASC")->fetchAll();
+$subjects = $pdo->query("SELECT id, code FROM tbl_subjects WHERE status = 'active' ORDER BY code ASC")->fetchAll();
 
 include __DIR__ . '/../includes/header.php';
 ?>
