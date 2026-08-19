@@ -24,7 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fileName = time() . '_' . $safeFileName;
         $destination = $uploadDir . $fileName;
 
+        // Execute the move
         if (move_uploaded_file($_FILES['attachment']['tmp_name'], $destination)) {
+            // Delete the old file if it exists
+            if (!empty($file_path) && file_exists(dirname(__DIR__) . '/' . $file_path)) {
+                unlink(dirname(__DIR__) . '/' . $file_path);
+            }
             $file_path = 'assets/uploads/' . $fileName;
         }
     }

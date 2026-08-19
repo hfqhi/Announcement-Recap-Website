@@ -20,17 +20,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $file_path = $item['file_path']; // Keep existing by default
 
     if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
-        $uploadDir = __DIR__ . '/../assets/uploads/';
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+        // Use dirname(__DIR__) for clean absolute paths across Windows/Linux
+        $uploadDir = dirname(__DIR__) . '/assets/uploads/';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
 
         $safeFileName = preg_replace("/[^a-zA-Z0-9\.\-_]/", "", basename($_FILES['attachment']['name']));
         $fileName = time() . '_' . $safeFileName;
         $destination = $uploadDir . $fileName;
 
+        // Execute the move
         if (move_uploaded_file($_FILES['attachment']['tmp_name'], $destination)) {
-            // If a new file successfully uploaded, delete the old one from the server
-            if (!empty($file_path) && file_exists(__DIR__ . '/../' . $file_path)) {
-                unlink(__DIR__ . '/../' . $file_path);
+            // Delete the old file if it exists
+            if (!empty($file_path) && file_exists(dirname(__DIR__) . '/' . $file_path)) {
+                unlink(dirname(__DIR__) . '/' . $file_path);
             }
             $file_path = 'assets/uploads/' . $fileName;
         }
