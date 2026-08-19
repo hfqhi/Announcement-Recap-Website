@@ -78,7 +78,7 @@ include __DIR__ . '/../includes/header.php';
                                 <a href="../<?= e($item['file_path']) ?>" target="_blank" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i> View Current File</a>
 
                                 <div class="form-check mt-3">
-                                    <input class="form-check-input" type="checkbox" name="remove_attachment" value="1" id="removeAttachment">
+                                    <input class="form-check-input shadow-none" type="checkbox" name="remove_attachment" value="1" id="removeAttachment">
                                     <label class="form-check-label text-secondary" for="removeAttachment">
                                         <i class="bi bi-trash text-danger"></i> Remove this attachment
                                     </label>
