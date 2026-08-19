@@ -19,8 +19,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // --- FILE UPLOAD LOGIC ---
     $file_path = $item['file_path']; // Keep existing by default
 
-    if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
-        // Use dirname(__DIR__) for clean absolute paths across Windows/Linux
+    // ADDED: Check if the user wants to remove the attachment entirely
+    if (isset($_POST['remove_attachment']) && $_POST['remove_attachment'] === '1') {
+        if (!empty($file_path) && file_exists(dirname(__DIR__) . '/' . $file_path)) {
+            unlink(dirname(__DIR__) . '/' . $file_path);
+        }
+        $file_path = null; // Clear from database
+    }
+    // Otherwise, process a new file upload if provided
+    elseif (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
         $uploadDir = dirname(__DIR__) . '/assets/uploads/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0777, true);
@@ -30,9 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fileName = time() . '_' . $safeFileName;
         $destination = $uploadDir . $fileName;
 
-        // Execute the move
         if (move_uploaded_file($_FILES['attachment']['tmp_name'], $destination)) {
-            // Delete the old file if it exists
             if (!empty($file_path) && file_exists(dirname(__DIR__) . '/' . $file_path)) {
                 unlink(dirname(__DIR__) . '/' . $file_path);
             }
@@ -40,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     // -------------------------
-
     $oldRow = $pdo->query("SELECT * FROM tbl_announcements WHERE id = $id")->fetch();
     $pdo->prepare("UPDATE tbl_announcements SET subject_id=?, title=?, content=?, due_date=?, due_time=?, end_date=?, file_path=? WHERE id=?")
         ->execute([$_POST['subject_id'], $_POST['title'], $_POST['content'], $_POST['due_date'] ?: null, $due_time, $_POST['end_date'] ?: null, $file_path, $id]);
@@ -70,9 +74,17 @@ include __DIR__ . '/../includes/header.php';
                     <div class="mb-3">
                         <label class="form-label fw-bold"><i class="bi bi-paperclip"></i> Attachment (Optional)</label>
                         <?php if (!empty($item['file_path'])): ?>
-                            <div class="mb-2">
-                                <a href="../<?= e($item['file_path']) ?>" target="_blank" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i> View Current File</a>
-                                <small class="text-muted ms-2">Uploading a new file will overwrite the existing one.</small>
+                            <div class="mb-3 p-3 bg-light border rounded">
+                                <a href="../<?= e($item['file_path']) ?>" target="_blank" class="btn btn-sm btn-outline-info mb-2"><i class="bi bi-eye"></i> View Current File</a>
+
+                                <!-- ADDED: Remove Attachment Checkbox -->
+                                <div class="form-check">
+                                    <input class="form-check-input border-danger" type="checkbox" name="remove_attachment" value="1" id="removeAttachment">
+                                    <label class="form-check-label text-danger fw-bold" for="removeAttachment">
+                                        <i class="bi bi-trash"></i> Permanently remove this attachment
+                                    </label>
+                                </div>
+                                <small class="text-muted d-block mt-2">Note: Uploading a new file below will automatically replace the old one without checking the box.</small>
                             </div>
                         <?php endif; ?>
                         <input type="file" name="attachment" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
