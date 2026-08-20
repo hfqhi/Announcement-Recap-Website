@@ -11,6 +11,9 @@ if (isset($pdo) && function_exists('autoArchiveOverdue')) {
 <html lang="en">
 
 <head>
+    <!-- Favicon (PNG format) -->
+    <link rel="icon" type="image/png" href="../assets/logo.png">
+    <link rel="apple-touch-icon" href="../assets/logo.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Updated Title tags to CPE3B -->
