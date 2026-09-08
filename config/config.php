@@ -16,10 +16,10 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-define('DB_HOST', 'localhost');
-define('DB_USER', 'cpe_user');
-define('DB_PASS', 'PortalPass123!');
-define('DB_NAME', 'db_announcement_system');
+define('DB_HOST', 'sql112.infinityfree.com');
+define('DB_USER', 'if0_42863063 ');
+define('DB_PASS', 'Ihb90mrPZL');
+define('DB_NAME', 'if0_42863063_db_announcement');
 
 define('APP_NAME', 'CPE3B Announcements');
 define('BASE_URL', '');
