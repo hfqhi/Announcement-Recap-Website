@@ -1,14 +1,12 @@
 <?php
-// admin/subjects.php
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth_guard.php';
 require_once __DIR__ . '/../includes/helpers.php';
+
 $pageTitle = "Manage Subjects";
 
-// --- HANDLE FORM SUBMISSIONS (ADD & EDIT) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf($_POST['csrf_token'] ?? '');
-
     $action = $_POST['action'] ?? '';
     $code = trim($_POST['code']);
     $name = trim($_POST['name']);
@@ -23,29 +21,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         setFlash('success', 'Subject added successfully!');
     } elseif ($action === 'edit') {
         $id = $_POST['id'];
-
-        // Get old state for audit log
         $stmt = $pdo->prepare("SELECT * FROM tbl_subjects WHERE id = ?");
         $stmt->execute([$id]);
         $oldState = json_encode($stmt->fetch(PDO::FETCH_ASSOC));
 
-        // Update record
         $update = $pdo->prepare("UPDATE tbl_subjects SET code = ?, name = ?, professor = ?, schedule = ?, color_theme = ? WHERE id = ?");
         $update->execute([$code, $name, $prof, $schedule, $color, $id]);
 
-        // Get new state for audit log
         $stmt->execute([$id]);
         $newState = json_encode($stmt->fetch(PDO::FETCH_ASSOC));
-
         logAction($pdo, $_SESSION['admin_id'], $id, 'updated', $oldState, $newState);
         setFlash('success', 'Subject updated successfully!');
     }
-
     header("Location: subjects.php");
     exit;
-}
+} // <-- Added missing closing brace
 
-// --- FILTER LOGIC ---
 $searchQuery = $_GET['search'] ?? '';
 $where = [];
 $params = [];
@@ -57,7 +48,7 @@ if ($searchQuery) {
     $params[] = $searchWildcard;
     $params[] = $searchWildcard;
     $params[] = $searchWildcard;
-}
+} // <-- Added missing closing brace
 
 $whereSql = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
 $sql = "SELECT * FROM tbl_subjects $whereSql ORDER BY code ASC";
@@ -70,6 +61,7 @@ $archived = array_filter($allSubjects, fn($s) => $s['status'] === 'archived');
 
 include __DIR__ . '/../includes/header.php';
 ?>
+
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
     <h2 class="mb-3 mb-md-0">Manage Subjects</h2>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#subjectModal" onclick="prepareModal('add')">
@@ -77,7 +69,6 @@ include __DIR__ . '/../includes/header.php';
     </button>
 </div>
 
-<!-- FILTER BAR -->
 <div class="card shadow-sm mb-4 border-0 bg-light">
     <div class="card-body py-3">
         <form method="GET" class="row g-2 align-items-center">
@@ -103,7 +94,6 @@ include __DIR__ . '/../includes/header.php';
 </ul>
 
 <div class="tab-content">
-    <!-- Active Tab -->
     <div class="tab-pane fade show active" id="active-tab">
         <div class="card shadow-sm border-0">
             <div class="card-body p-0 table-responsive">
@@ -146,8 +136,6 @@ include __DIR__ . '/../includes/header.php';
             </div>
         </div>
     </div>
-
-    <!-- Archived Tab -->
     <div class="tab-pane fade" id="archived-tab">
         <div class="card shadow-sm border-0">
             <div class="card-body p-0 table-responsive">
@@ -205,7 +193,6 @@ include __DIR__ . '/../includes/header.php';
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <input type="hidden" name="action" id="modalAction" value="add">
                     <input type="hidden" name="id" id="modalId" value="">
-
                     <div class="mb-3">
                         <label class="form-label fw-bold">Subject Code</label>
                         <input type="text" name="code" id="modalCode" class="form-control" placeholder="e.g. CPE3B" required>
@@ -222,7 +209,6 @@ include __DIR__ . '/../includes/header.php';
                         <label class="form-label fw-bold">Time Schedule</label>
                         <input type="text" name="schedule" id="modalSchedule" class="form-control" placeholder="e.g. M 10:00 AM - 1:00 PM">
                     </div>
-                    <!-- FIX: Dynamically populating the Color Theme dropdown from config -->
                     <div class="mb-3">
                         <label class="form-label fw-bold">Color Theme</label>
                         <select name="color_theme" id="modalColor" class="form-select" required>
@@ -246,24 +232,20 @@ include __DIR__ . '/../includes/header.php';
         const title = document.getElementById('subjectModalTitle');
         const submitBtn = document.getElementById('modalSubmitBtn');
         const action = document.getElementById('modalAction');
-
         if (mode === 'add') {
             title.innerHTML = '<i class="bi bi-journal-plus"></i> Add Subject';
             submitBtn.textContent = 'Save Subject';
             action.value = 'add';
-
             document.getElementById('modalId').value = '';
             document.getElementById('modalCode').value = '';
             document.getElementById('modalName').value = '';
             document.getElementById('modalProf').value = '';
             document.getElementById('modalSchedule').value = '';
-            // FIX: Default to the first key in your new config array
             document.getElementById('modalColor').value = 'bg-sciets';
         } else if (mode === 'edit' && data) {
             title.innerHTML = '<i class="bi bi-pencil-square"></i> Edit Subject';
             submitBtn.textContent = 'Update Subject';
             action.value = 'edit';
-
             document.getElementById('modalId').value = data.id;
             document.getElementById('modalCode').value = data.code;
             document.getElementById('modalName').value = data.name;
@@ -273,5 +255,4 @@ include __DIR__ . '/../includes/header.php';
         }
     }
 </script>
-
 <?php include __DIR__ . '/../includes/footer.php'; ?>

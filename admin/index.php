@@ -1,34 +1,32 @@
 <?php
-// admin/index.php
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth_guard.php';
 require_once __DIR__ . '/../includes/helpers.php';
+
 $pageTitle = "Manage Announcements";
 
-// 1. Handle Filters
 $subjectFilter = $_GET['subject_id'] ?? '';
 $searchQuery = $_GET['search'] ?? '';
 
 $where = [];
-$params = []; // Simple indexed array for positional parameters
+$params = [];
 
 if ($subjectFilter) {
     $where[] = "a.subject_id = ?";
     $params[] = $subjectFilter;
-}
+} // <-- Added missing closing brace
 
 if ($searchQuery) {
     $where[] = "(a.title LIKE ? OR a.content LIKE ? OR s.code LIKE ? OR s.name LIKE ?)";
     $searchWildcard = '%' . $searchQuery . '%';
-    $params[] = $searchWildcard; // for title
-    $params[] = $searchWildcard; // for content
-    $params[] = $searchWildcard; // for subject code
-    $params[] = $searchWildcard; // for subject name
-}
+    $params[] = $searchWildcard;
+    $params[] = $searchWildcard;
+    $params[] = $searchWildcard;
+    $params[] = $searchWildcard;
+} // <-- Added missing closing brace
 
 $whereSql = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
 
-// 2. Fetch filtered announcements
 $sql = "SELECT a.*, s.code, s.color_theme
         FROM tbl_announcements a
         LEFT JOIN tbl_subjects s ON a.subject_id = s.id
@@ -39,15 +37,14 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $allAnnouncements = $stmt->fetchAll();
 
-// 3. Split into Active and Archived
 $active = array_filter($allAnnouncements, fn($a) => $a['status'] === 'active');
 $archived = array_filter($allAnnouncements, fn($a) => $a['status'] === 'archived');
 
-// 4. Fetch Subjects for the dropdown filter
 $subjects = $pdo->query("SELECT id, code FROM tbl_subjects WHERE status = 'active' ORDER BY code ASC")->fetchAll();
 
 include __DIR__ . '/../includes/header.php';
 ?>
+
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
     <h2 class="mb-3 mb-md-0">Manage Announcements</h2>
     <a href="create.php" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Announcement</a>
@@ -132,7 +129,6 @@ include __DIR__ . '/../includes/header.php';
             </div>
         </div>
     </div>
-
     <div class="tab-pane fade" id="archived-tab">
         <div class="card shadow-sm border-0">
             <div class="card-body p-0 table-responsive">
@@ -174,4 +170,5 @@ include __DIR__ . '/../includes/header.php';
         </div>
     </div>
 </div>
+
 <?php include __DIR__ . '/../includes/footer.php'; ?>

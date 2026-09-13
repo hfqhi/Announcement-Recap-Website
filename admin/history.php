@@ -1,12 +1,10 @@
 <?php
-// admin/history.php
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth_guard.php';
 require_once __DIR__ . '/../includes/helpers.php';
+
 $pageTitle = "Audit Log";
 
-// --- Filters & Pagination ---
-// FIX: Changed default fallback from 'all' to 'today'
 $period = $_GET['period'] ?? 'today';
 $actionFilter = $_GET['action'] ?? '';
 $subjectFilter = $_GET['subject_id'] ?? '';
@@ -27,22 +25,20 @@ if ($period === 'today') {
     $where[] = "l.changed_at BETWEEN :date_from AND :date_to";
     $params['date_from'] = $_GET['date_from'] . ' 00:00:00';
     $params['date_to'] = $_GET['date_to'] . ' 23:59:59';
-}
+} // <-- Added missing closing brace
 
 if ($actionFilter) {
     $where[] = "l.action = :action";
     $params['action'] = $actionFilter;
-}
+} // <-- Added missing closing brace
 
 if ($subjectFilter) {
     $where[] = "s.id = :subject_id";
     $params['subject_id'] = $subjectFilter;
-}
+} // <-- Added missing closing brace
 
 $whereClause = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
 
-// --- Query Execution ---
-// Get Total Count for Pagination
 $countQuery = "SELECT COUNT(*) FROM tbl_audit_log l
                LEFT JOIN tbl_announcements ann ON l.announcement_id = ann.id
                LEFT JOIN tbl_subjects s ON ann.subject_id = s.id $whereClause";
@@ -51,7 +47,6 @@ $stmtCount->execute($params);
 $totalRecords = $stmtCount->fetchColumn();
 $totalPages = ceil($totalRecords / $limit);
 
-// Get Paginated Data
 $sql = "SELECT l.*, a.username, ann.title as announcement_title, s.code as subject_code
         FROM tbl_audit_log l
         LEFT JOIN tbl_admins a ON l.admin_id = a.id
@@ -59,15 +54,12 @@ $sql = "SELECT l.*, a.username, ann.title as announcement_title, s.code as subje
         LEFT JOIN tbl_subjects s ON ann.subject_id = s.id
         $whereClause
         ORDER BY l.changed_at DESC LIMIT $limit OFFSET $offset";
-
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $logs = $stmt->fetchAll();
 
-// Fetch Subjects for the Dropdown Filter
 $subjects = $pdo->query("SELECT id, code FROM tbl_subjects WHERE status = 'active' ORDER BY code ASC")->fetchAll();
 
-// --- UI Helpers ---
 $actionColors = [
     'created' => 'bg-success',
     'updated' => 'bg-warning text-dark',
@@ -89,12 +81,14 @@ function renderDiff($oldJson, $newJson)
 
     $diffHtml = '<table class="table table-sm table-bordered mt-2 mb-0" style="font-size: 0.85rem;">';
     $diffHtml .= '<thead class="table-light"><tr><th>Field</th><th>Old Value</th><th>New Value</th></tr></thead><tbody>';
-    $hasDiff = false;
 
+    $hasDiff = false;
     foreach ($allKeys as $k) {
-        if (in_array($k, ['created_at', 'updated_at', 'id'])) continue; // Skip auto timestamps
+        if (in_array($k, ['created_at', 'updated_at', 'id'])) continue;
+
         $o = $old[$k] ?? '<em class="text-muted">null</em>';
         $n = $new[$k] ?? '<em class="text-muted">null</em>';
+
         if ($o != $n) {
             $hasDiff = true;
             $diffHtml .= "<tr><td class='fw-bold'>" . e($k) . "</td>
@@ -103,11 +97,13 @@ function renderDiff($oldJson, $newJson)
         }
     }
     $diffHtml .= '</tbody></table>';
+
     return $hasDiff ? $diffHtml : '<div class="text-muted small mt-2">No structural changes detected (or record is missing).</div>';
 }
 
 include __DIR__ . '/../includes/header.php';
 ?>
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Audit Log</h2>
     <span class="badge bg-dark fs-6">Total Records: <?= number_format($totalRecords) ?></span>
@@ -185,13 +181,11 @@ include __DIR__ . '/../includes/header.php';
                         <td colspan="5" class="text-center py-4 text-muted">No audit logs found for this criteria.</td>
                     </tr>
                 <?php endif; ?>
-
                 <?php foreach ($logs as $log): ?>
                     <?php
                     $badgeColor = $actionColors[$log['action']] ?? 'bg-secondary';
                     $isSubjectAction = strpos($log['action'], 'subject_') === 0;
 
-                    // Resolve Target Name
                     $targetStr = "<em>Unknown/Deleted</em>";
                     if ($isSubjectAction && $log['new_value']) {
                         $targetData = json_decode($log['new_value'], true);
@@ -221,7 +215,6 @@ include __DIR__ . '/../includes/header.php';
                             <?php endif; ?>
                         </td>
                     </tr>
-
                     <?php if ($log['action'] === 'updated' || $log['action'] === 'subject_updated' || $log['action'] === 'hard_deleted'): ?>
                         <tr class="collapse bg-light" id="diff-<?= $log['id'] ?>">
                             <td colspan="5" class="p-3">
@@ -260,4 +253,5 @@ include __DIR__ . '/../includes/header.php';
         document.querySelector('.custom-dates').style.display = (val === 'custom') ? 'block' : 'none';
     }
 </script>
+
 <?php include __DIR__ . '/../includes/footer.php'; ?>

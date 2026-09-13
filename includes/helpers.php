@@ -1,7 +1,7 @@
 <?php
 // includes/helpers.php
 
-// Strict XSS Prevention: Wrap ALL user output in this
+// Strict XSS Prevention
 function e($string)
 {
     return htmlspecialchars($string ?? '', ENT_QUOTES, 'UTF-8');
@@ -15,7 +15,7 @@ function verifyCsrf($token)
     }
 }
 
-// Flash Messages (Auto-dismissing alerts)
+// Flash Messages
 function setFlash($type, $message)
 {
     $_SESSION['flash'] = ['type' => $type, 'message' => $message];
@@ -50,44 +50,32 @@ function logAction($pdo, $adminId, $announcementId, $action, $oldData = null, $n
     ]);
 }
 
-// Extract time from schedule strings (e.g., "M 10 AM - 1 PM" -> Unix Timestamp)
 function parseScheduleTime($schedule)
 {
-    if (!$schedule) return 9999999999; // Push missing schedules to bottom
+    if (!$schedule) return 9999999999;
     if (preg_match('/(\d{1,2}(:\d{2})?\s*[AP]M)/i', $schedule, $matches)) {
         return strtotime($matches[1]);
     }
-    return 9999999999; // Push unparseable/TBA strings to bottom
+    return 9999999999;
 }
 
-// Grouped by Subject logic applied here!
 function getActiveAnnouncements($pdo)
 {
-    // 1. Fetch data primarily sorted by due_date
     $announcements = $pdo->query("SELECT a.*, s.code, s.name, s.professor, s.schedule, s.color_theme
                         FROM tbl_announcements a
                         LEFT JOIN tbl_subjects s ON a.subject_id = s.id
                         WHERE a.status = 'active' ORDER BY ISNULL(a.due_date), a.due_date ASC")->fetchAll();
 
-    // 2. Perform secondary sort by parsed class schedule time
     usort($announcements, function ($a, $b) {
-        // If dates are different or null, keep original DB order
         if ($a['due_date'] !== $b['due_date']) return 0;
-
-        // If dates are identical, parse the schedule string and sort by time
         $timeA = parseScheduleTime($a['schedule']);
         $timeB = parseScheduleTime($b['schedule']);
-
         if ($timeA !== $timeB) return $timeA <=> $timeB;
-
-        // Final fallback: Alphabetical by subject code
         return strcmp($a['code'], $b['code']);
     });
-
     return $announcements;
 }
 
-// Deadline Computation Engine
 function getDaysLeft(string $dueDate): array
 {
     $today = new DateTime('today', new DateTimeZone('Asia/Manila'));
@@ -95,19 +83,15 @@ function getDaysLeft(string $dueDate): array
     $diff  = (int) $today->diff($due)->format('%r%a');
 
     if ($diff > 3)       return ['label' => "{$diff} days left",  'class' => 'text-success'];
-    if ($diff === 1)     return ['label' => 'Due tomorrow!',      'class' => 'text-danger fw-bold']; // <-- ADDED: Urgent Tomorrow Warning
+    if ($diff === 1)     return ['label' => 'Due tomorrow!',      'class' => 'text-danger fw-bold'];
     if ($diff > 0)       return ['label' => "{$diff} days left",  'class' => 'text-warning fw-bold'];
     if ($diff === 0)     return ['label' => 'Due today!',         'class' => 'text-danger fw-bold'];
     return               ['label' => abs($diff) . 'd overdue',    'class' => 'text-danger text-decoration-line-through'];
 }
 
-// Auto-Archive Engine (Lazy Execution)
 function autoArchiveOverdue(PDO $pdo): void
 {
-    // Fetch today's date in Manila Time
     $today = (new DateTime('today', new DateTimeZone('Asia/Manila')))->format('Y-m-d');
-
-    // Safely update items where the end_date (or due_date if no end_date exists) has passed
     $sql = "UPDATE tbl_announcements
             SET status = 'archived'
             WHERE status = 'active'
@@ -116,7 +100,6 @@ function autoArchiveOverdue(PDO $pdo): void
                 (end_date IS NOT NULL AND end_date < ?) OR
                 (end_date IS NULL AND due_date < ?)
             )";
-
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$today, $today]);
 }
