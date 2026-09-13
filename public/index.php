@@ -9,10 +9,19 @@ require_once __DIR__ . '/../includes/helpers.php';
 
 $pageTitle = "Announcement Recap";
 
+// 1. Fetch subjects for the filter dropdown
+$subjects = $pdo->query("SELECT id, code, name FROM tbl_subjects WHERE status = 'active' ORDER BY code ASC")->fetchAll();
+
+// 2. Handle active filter state
+$filterSubject = $_GET['subject'] ?? 'all';
+
+// 3. Fetch and filter announcements
 $announcements = getActiveAnnouncements($pdo);
 
-// Removed the aggressive date filter. It now grabs ALL active announcements with a due date.
-// The getDaysLeft() helper will automatically flag passed dates as "Overdue" natively.
+if ($filterSubject !== 'all') {
+    $announcements = array_filter($announcements, fn($a) => $a['subject_id'] == $filterSubject);
+}
+
 $upcomingDeadlines = array_filter($announcements, fn($a) => !empty($a['due_date']));
 $generalInfo = array_filter($announcements, fn($a) => empty($a['due_date']));
 
@@ -20,17 +29,16 @@ $generalInfo = array_filter($announcements, fn($a) => empty($a['due_date']));
 $reqMonth = isset($_GET['m']) ? (int)$_GET['m'] : (int)date('m');
 $reqYear = isset($_GET['y']) ? (int)$_GET['y'] : (int)date('Y');
 
-// Security check: Ensure dates are valid, otherwise default to current server date
 if ($reqMonth < 1 || $reqMonth > 12) $reqMonth = (int)date('m');
 if ($reqYear < 2000 || $reqYear > 2100) $reqYear = (int)date('Y');
 
-// Calculate previous and next months for the buttons
 $prevMonth = $reqMonth - 1;
 $prevYear = $reqYear;
 if ($prevMonth == 0) {
     $prevMonth = 12;
     $prevYear--;
 }
+
 $nextMonth = $reqMonth + 1;
 $nextYear = $reqYear;
 if ($nextMonth == 13) {
@@ -38,17 +46,14 @@ if ($nextMonth == 13) {
     $nextYear++;
 }
 
-// Format the month name (e.g., "August") for the header
 $dateObj = DateTime::createFromFormat('!m', $reqMonth);
 $monthName = $dateObj->format('F');
 
-// Calendar & Semester Engine Logic (Updated to use dynamic values)
 $month = str_pad($reqMonth, 2, '0', STR_PAD_LEFT);
 $year = $reqYear;
 $daysInMonth = date('t', mktime(0, 0, 0, $reqMonth, 1, $reqYear));
 $firstDayOfWeek = date('w', mktime(0, 0, 0, $reqMonth, 1, $reqYear));
 
-// ---------------------------------
 $semStart = new DateTime(SEMESTER_START);
 $semStartSunday = clone $semStart;
 $semStartSunday->modify("-" . (int)$semStart->format('w') . " days");
@@ -66,7 +71,6 @@ foreach ($announcements as $a) {
     }
 }
 
-// Build Calendar Grid Array
 $weeks = [];
 $currentWeek = array_fill(0, $firstDayOfWeek, null);
 
@@ -97,6 +101,25 @@ include __DIR__ . '/../includes/header.php';
     </div>
 </div>
 
+<!-- ADDED: Subject Filter Bar -->
+<div class="row mb-4">
+    <div class="col-12 col-md-6 col-lg-4">
+        <form method="GET" class="d-flex align-items-center bg-white border p-1 rounded shadow-sm">
+            <i class="bi bi-funnel-fill text-muted mx-2"></i>
+            <?php if (isset($_GET['m'])): ?><input type="hidden" name="m" value="<?= (int)$_GET['m'] ?>"><?php endif; ?>
+            <?php if (isset($_GET['y'])): ?><input type="hidden" name="y" value="<?= (int)$_GET['y'] ?>"><?php endif; ?>
+            <select name="subject" class="form-select border-0 shadow-none fw-semibold text-secondary" onchange="this.form.submit()" style="cursor: pointer; background-color: transparent;">
+                <option value="all">View All Subjects</option>
+                <?php foreach ($subjects as $sub): ?>
+                    <option value="<?= $sub['id'] ?>" <?= $filterSubject == $sub['id'] ? 'selected' : '' ?>>
+                        <?= e($sub['code']) ?> - <?= e($sub['name']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </form>
+    </div>
+</div>
+
 <div id="view-card">
     <h4 class="text-danger mb-3 border-bottom pb-2"><i class="bi bi-clock-history"></i> Upcoming Deadlines</h4>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
@@ -120,12 +143,10 @@ include __DIR__ . '/../includes/header.php';
                         <h5 class="card-title fw-bold text-dark"><?= e($row['title']) ?></h5>
                         <div class="card-text mb-3 flex-grow-1"><?= nl2br(e($row['content'])) ?></div>
 
-                        <!-- SMART ATTACHMENT RENDERER -->
                         <?php if (!empty($row['file_path'])): ?>
                             <?php
                             $ext = strtolower(pathinfo($row['file_path'], PATHINFO_EXTENSION));
                             $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
-                            // ADDED: The correct relative path to go up one folder
                             $displayPath = '../' . $row['file_path'];
                             ?>
                             <div class="mb-3 mt-auto text-center">
@@ -184,12 +205,10 @@ include __DIR__ . '/../includes/header.php';
                         <h5 class="card-title fw-bold text-dark"><?= e($row['title']) ?></h5>
                         <div class="card-text mb-3 flex-grow-1"><?= nl2br(e($row['content'])) ?></div>
 
-                        <!-- SMART ATTACHMENT RENDERER (For General Info) -->
                         <?php if (!empty($row['file_path'])): ?>
                             <?php
                             $ext = strtolower(pathinfo($row['file_path'], PATHINFO_EXTENSION));
                             $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
-                            // ADDED: The correct relative path to go up one folder
                             $displayPath = '../' . $row['file_path'];
                             ?>
                             <div class="mb-3 mt-auto text-center">
@@ -214,14 +233,14 @@ include __DIR__ . '/../includes/header.php';
 <div id="view-calendar" style="display: none;">
     <div class="row">
         <div class="col-lg-9">
-            <!-- DYNAMIC CALENDAR HEADER -->
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3">
                 <div class="d-flex align-items-center gap-3">
-                    <a href="?m=<?= $prevMonth ?>&y=<?= $prevYear ?>" class="btn btn-outline-dark btn-sm shadow-sm" title="Previous Month">
+                    <!-- ADDED: Preserved the filter string during month navigation -->
+                    <a href="?m=<?= $prevMonth ?>&y=<?= $prevYear ?>&subject=<?= urlencode($filterSubject) ?>" class="btn btn-outline-dark btn-sm shadow-sm" title="Previous Month">
                         <i class="bi bi-chevron-left"></i>
                     </a>
                     <h3 class="mb-0 font-monospace text-center" style="min-width: 200px;"><?= $monthName ?> <?= $reqYear ?></h3>
-                    <a href="?m=<?= $nextMonth ?>&y=<?= $nextYear ?>" class="btn btn-outline-dark btn-sm shadow-sm" title="Next Month">
+                    <a href="?m=<?= $nextMonth ?>&y=<?= $nextYear ?>&subject=<?= urlencode($filterSubject) ?>" class="btn btn-outline-dark btn-sm shadow-sm" title="Next Month">
                         <i class="bi bi-chevron-right"></i>
                     </a>
                 </div>
