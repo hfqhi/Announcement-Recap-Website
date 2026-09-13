@@ -47,7 +47,10 @@ include __DIR__ . '/../includes/header.php';
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
     <h2 class="mb-3 mb-md-0">Manage Announcements</h2>
-    <a href="create.php" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Announcement</a>
+    <div>
+        <a href="backup.php" class="btn btn-outline-success me-2"><i class="bi bi-cloud-arrow-down"></i> Export DB</a>
+        <a href="create.php" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Announcement</a>
+    </div>
 </div>
 
 <div class="card shadow-sm mb-4 border-0 bg-light">
