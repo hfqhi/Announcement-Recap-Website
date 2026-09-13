@@ -1,3 +1,3 @@
 <?php
-header("Location: https://cpe-announce.me");
-exit;
+header("Location: /public/index.php");
+exit();

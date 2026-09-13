@@ -17,7 +17,7 @@ if (empty($_SESSION['csrf_token'])) {
 }
 
 define('DB_HOST', 'sql112.infinityfree.com');
-define('DB_USER', 'if0_42863063 ');
+define('DB_USER', 'if0_42863063');
 define('DB_PASS', 'Ihb90mrPZL');
 define('DB_NAME', 'if0_42863063_db_announcement');
 

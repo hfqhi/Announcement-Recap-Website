@@ -1,7 +1,12 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // public/index.php
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/helpers.php';
+
 $pageTitle = "Announcement Recap";
 
 $announcements = getActiveAnnouncements($pdo);
@@ -26,7 +31,6 @@ if ($prevMonth == 0) {
     $prevMonth = 12;
     $prevYear--;
 }
-
 $nextMonth = $reqMonth + 1;
 $nextYear = $reqYear;
 if ($nextMonth == 13) {
@@ -43,8 +47,8 @@ $month = str_pad($reqMonth, 2, '0', STR_PAD_LEFT);
 $year = $reqYear;
 $daysInMonth = date('t', mktime(0, 0, 0, $reqMonth, 1, $reqYear));
 $firstDayOfWeek = date('w', mktime(0, 0, 0, $reqMonth, 1, $reqYear));
-// ---------------------------------
 
+// ---------------------------------
 $semStart = new DateTime(SEMESTER_START);
 $semStartSunday = clone $semStart;
 $semStartSunday->modify("-" . (int)$semStart->format('w') . " days");
@@ -65,6 +69,7 @@ foreach ($announcements as $a) {
 // Build Calendar Grid Array
 $weeks = [];
 $currentWeek = array_fill(0, $firstDayOfWeek, null);
+
 for ($day = 1; $day <= $daysInMonth; $day++) {
     $currentWeek[] = $day;
     if (count($currentWeek) == 7) {
@@ -78,6 +83,7 @@ if (count($currentWeek) > 0) {
 
 include __DIR__ . '/../includes/header.php';
 ?>
+
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-end mb-4 mt-3 border-bottom pb-3 text-center text-md-start">
     <div class="mb-3 mb-md-0">
         <h1 class="display-6 fw-bold text-uppercase mb-0" style="letter-spacing: 2px;">Announcement Recap</h1>
@@ -94,7 +100,9 @@ include __DIR__ . '/../includes/header.php';
 <div id="view-card">
     <h4 class="text-danger mb-3 border-bottom pb-2"><i class="bi bi-clock-history"></i> Upcoming Deadlines</h4>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
-        <?php if (empty($upcomingDeadlines)): ?><div class="col-12 text-muted">No upcoming deadlines.</div><?php endif; ?>
+        <?php if (empty($upcomingDeadlines)): ?>
+            <div class="col-12 text-muted">No upcoming deadlines.</div>
+        <?php endif; ?>
         <?php foreach ($upcomingDeadlines as $row): ?>
             <?php $timeStatus = getDaysLeft($row['due_date']); ?>
             <div class="col">
@@ -117,7 +125,6 @@ include __DIR__ . '/../includes/header.php';
                             <?php
                             $ext = strtolower(pathinfo($row['file_path'], PATHINFO_EXTENSION));
                             $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
-
                             // ADDED: The correct relative path to go up one folder
                             $displayPath = '../' . $row['file_path'];
                             ?>
@@ -135,7 +142,6 @@ include __DIR__ . '/../includes/header.php';
                         <?php endif; ?>
 
                         <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-end">
-
                             <div class="text-danger fw-bold small" style="line-height: 1.4;">
                                 <?php if ($row['end_date']): ?>
                                     <div>
@@ -152,7 +158,6 @@ include __DIR__ . '/../includes/header.php';
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </div>
-
                             <span class="small <?= $timeStatus['class'] ?> bg-white px-2 py-1 rounded border shadow-sm">
                                 <?= $timeStatus['label'] ?>
                             </span>
@@ -184,7 +189,6 @@ include __DIR__ . '/../includes/header.php';
                             <?php
                             $ext = strtolower(pathinfo($row['file_path'], PATHINFO_EXTENSION));
                             $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
-
                             // ADDED: The correct relative path to go up one folder
                             $displayPath = '../' . $row['file_path'];
                             ?>
@@ -216,9 +220,7 @@ include __DIR__ . '/../includes/header.php';
                     <a href="?m=<?= $prevMonth ?>&y=<?= $prevYear ?>" class="btn btn-outline-dark btn-sm shadow-sm" title="Previous Month">
                         <i class="bi bi-chevron-left"></i>
                     </a>
-
                     <h3 class="mb-0 font-monospace text-center" style="min-width: 200px;"><?= $monthName ?> <?= $reqYear ?></h3>
-
                     <a href="?m=<?= $nextMonth ?>&y=<?= $nextYear ?>" class="btn btn-outline-dark btn-sm shadow-sm" title="Next Month">
                         <i class="bi bi-chevron-right"></i>
                     </a>
@@ -274,7 +276,6 @@ include __DIR__ . '/../includes/header.php';
 
         <div class="col-lg-3 mt-4 mt-lg-0">
             <h4 class="text-danger border-bottom pb-2">Upcoming</h4>
-
             <div style="max-height: 650px; overflow-y: auto; padding-right: 5px;">
                 <ul class="list-group list-group-flush shadow-sm rounded">
                     <?php if (empty($upcomingDeadlines)): ?>
@@ -291,8 +292,8 @@ include __DIR__ . '/../includes/header.php';
                     <?php endforeach; ?>
                 </ul>
             </div>
-
         </div>
     </div>
 </div>
+
 <?php include __DIR__ . '/../includes/footer.php'; ?>
